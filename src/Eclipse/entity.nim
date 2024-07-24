@@ -8,13 +8,11 @@ import sdl2
 
 import common
 
-type BaseEntity* = object
+type Entity* = object
     id: string
-    position: Vec2
-    scale: Vec2
-    rotation: float
-
-type Entity* = ref BaseEntity
+    position*: Vec2
+    scale*: Vec2
+    rotation*: float
 
 proc newEntity*(id: string): Entity =
     result = Entity(id: id, position: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), rotation: 0)

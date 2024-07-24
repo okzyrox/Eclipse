@@ -7,7 +7,8 @@ import Eclipse/[
   game,
   window,
   entity,
-  scene
+  scene,
+  common
 ]
 
-export game, window, entity, scene
+export game, window, entity, scene, common

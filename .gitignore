@@ -1,0 +1,9 @@
+nimcache/
+nimdocs/
+
+*.exe
+*.dll
+*.a
+*.lib
+
+log.txt

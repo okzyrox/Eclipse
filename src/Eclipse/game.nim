@@ -5,6 +5,8 @@
 ## 
 ## Game houses all the scenes, and handles the game loop
 
+import sdl2
+
 import window, scene
 
 type GameData* = object
@@ -18,15 +20,26 @@ type EclipseGame = object
     scenes: seq[Scene]
     currentScene: Scene
 
+    delta_time_count: uint64
+    delta_time_count_prev: uint64
+    delta_time*: float32
+    currentEvent: Event
     data: seq[GameData]
 
 type Game* = ref EclipseGame
 
 proc newGame*(): Game = 
-    Game(
+    result = Game(
         running: true,
-        window: newWindow(800, 600, "Eclipse Engine"),
+        window: newWindow(800, 800, "Eclipse Engine"),
+        delta_time_count: getPerformanceCounter()
     )
+
+proc is_running*(game: Game): bool = game.running
+
+proc get_dt*(game: Game): float32 = game.delta_time
+
+proc get_current_scene*(game: Game): Scene = game.currentScene
 
 proc add*(game: var Game, scene: Scene) = 
     game.scenes.add(scene)
@@ -50,11 +63,23 @@ proc switch_scene*(game: var Game, id: string) =
         
 
 proc update*(game: var Game) = 
+    var previousCounter = game.delta_time_count
+    game.delta_time_count = getPerformanceCounter()
+
+    game.delta_time = (game.delta_time_count - previousCounter).float / getPerformanceFrequency().float
+    
+    game.currentEvent = defaultEvent
+    while pollEvent(game.currentEvent):
+        case game.currentEvent.kind
+            of QuitEvent:
+                game.running = false
+                break
+            else: discard
     game.currentScene.update()
 
 proc draw*(game: var Game) = 
+    var renderer = game.window.get_renderer()
     game.window.clear()
 
-    var renderer = game.window.get_renderer()
-
     draw(renderer, game.currentScene)
+    renderer.present()
