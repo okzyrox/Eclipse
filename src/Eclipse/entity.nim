@@ -11,16 +11,13 @@ import common
 type BaseEntity* = object
     id: string
     position: Vec2
-    velocity: Vec2
-    acceleration: Vec2
     scale: Vec2
     rotation: float
-    angle: float
 
 type Entity* = ref BaseEntity
 
 proc newEntity*(id: string): Entity =
-    result = Entity(id: id, position: Vec2(x: 0, y: 0), velocity: Vec2(x: 0, y: 0), acceleration: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), rotation: 0, angle: 0)
+    result = Entity(id: id, position: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), rotation: 0)
 
 
 proc update*(entity: Entity) =
