@@ -7,3 +7,4 @@ nimdocs/
 *.lib
 
 log.txt
+.vscode/*

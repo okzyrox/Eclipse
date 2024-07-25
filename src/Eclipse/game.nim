@@ -23,8 +23,8 @@ type EclipseGame = object
     delta_time_count: uint64
     delta_time_count_prev: uint64
     delta_time*: float32
-    currentEvent: Event
     #data: seq[GameData]
+    evt: Event
 
 type Game* = ref EclipseGame
 
@@ -34,7 +34,7 @@ proc newGame*(): Game =
         running: true,
         window: newWindow(800, 800, "Eclipse Engine"),
         delta_time_count: getPerformanceCounter(),
-        currentEvent: defaultEvent
+        evt: sdl2.defaultEvent
     )
 
 proc is_running*(game: Game): bool = game.running
@@ -70,14 +70,14 @@ proc update*(game: var Game) =
 
     game.delta_time = (game.delta_time_count - previousCounter).float / getPerformanceFrequency().float
 
-    while pollEvent(game.currentEvent):
-        if game.currentEvent.kind == QuitEvent:
+    while pollEvent(game.evt):
+        if game.evt.kind == QuitEvent:
             game.running = false
             break
     #game.currentScene.update()
 
 proc draw*(game: var Game) = 
-    #var renderer = game.window.get_renderer()
+    #var renderer = game.window.grenderer
     game.window.present()
 
     #draw(renderer, game.currentScene)

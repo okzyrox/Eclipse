@@ -14,8 +14,8 @@ type EclipseWindow* = object
     fullscreen: bool
     flags: seq[cuint]
 
-    sdl_window: WindowPtr
-    sdl_renderer: RendererPtr
+    sdl_window*: WindowPtr
+    sdl_renderer*: RendererPtr
 
 
 proc newWindow*(width, height: int, title: string, fullscreen: bool = false, flags: seq[cuint] = @[]): EclipseWindow =
@@ -35,8 +35,11 @@ proc newWindow*(width, height: int, title: string, fullscreen: bool = false, fla
     )
 
     sdlFailIf result.sdl_window.isNil: "window could not be created"
-    defer: result.sdl_window.destroy()
-
+    defer: 
+        result.sdl_window.destroy()
+        echo "window could not be created, exiting..."
+        quit(1)
+    
     result.sdl_renderer = createRenderer(
       result.sdl_window, 
       -1, 
@@ -44,9 +47,11 @@ proc newWindow*(width, height: int, title: string, fullscreen: bool = false, fla
     )
 
     sdlFailIf result.sdl_renderer.isNil: "renderer could not be created"
-    defer: result.sdl_renderer.destroy()
+    defer: 
+        result.sdl_renderer.destroy()
+        echo "renderer could not be created, exiting..."
+        quit(1)
 
-proc get_renderer*(window: EclipseWindow): RendererPtr = window.sdl_renderer
 
 proc present*(window: EclipseWindow) = 
     window.sdl_renderer.setDrawColor(0, 0, 0, 255)
