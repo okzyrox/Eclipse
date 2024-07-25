@@ -11,4 +11,6 @@ import Eclipse/[
   common
 ]
 
-export game, window, entity, scene, common
+import sdl2
+
+export game, window, entity, scene, common, sdl2

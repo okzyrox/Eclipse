@@ -19,9 +19,6 @@ type EclipseWindow* = object
 
 
 proc newWindow*(width, height: int, title: string, fullscreen: bool = false, flags: seq[cuint] = @[]): EclipseWindow =
-    sdlFailIf(not sdl2.init(INIT_VIDEO or INIT_TIMER or INIT_EVENTS)):
-      "SDL2 initialization failed"
-    defer: sdl2.quit()
     result.width = width
     result.height = height
     result.title = title
@@ -51,6 +48,7 @@ proc newWindow*(width, height: int, title: string, fullscreen: bool = false, fla
 
 proc get_renderer*(window: EclipseWindow): RendererPtr = window.sdl_renderer
 
-proc clear*(window: EclipseWindow) = 
+proc present*(window: EclipseWindow) = 
     window.sdl_renderer.setDrawColor(0, 0, 0, 255)
     window.sdl_renderer.clear()
+    window.sdl_renderer.present()
