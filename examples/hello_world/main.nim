@@ -23,7 +23,7 @@ addHandler(cl)
 #mainGame.switch_scene("main")
 log(lvlDebug, "Running")
 while mainGame.is_running():
-    mainGame.draw()
+    #mainGame.draw()
     mainGame.update()
     
 

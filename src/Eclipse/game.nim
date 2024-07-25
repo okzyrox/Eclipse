@@ -17,6 +17,8 @@ type EclipseGame = object
     running*: bool #
 
     window: EclipseWindow
+    sdl2_window: WindowPtr
+    sdl2_renderer: RendererPtr
     scenes: seq[Scene]
     currentScene: Scene
 
@@ -30,9 +32,12 @@ type Game* = ref EclipseGame
 
 proc newGame*(): Game = 
     discard sdl2.init(INIT_EVERYTHING)
+    var (eclipse_window, sdl2_window, sdl2_renderer) = newWindow(800, 800, "Eclipse Engine")
     result = Game(
         running: true,
-        window: newWindow(800, 800, "Eclipse Engine"),
+        window: eclipse_window,
+        sdl2_window: sdl2_window,
+        sdl2_renderer: sdl2_renderer,
         delta_time_count: getPerformanceCounter(),
         evt: sdl2.defaultEvent
     )
@@ -76,8 +81,14 @@ proc update*(game: var Game) =
             break
     #game.currentScene.update()
 
-proc draw*(game: var Game) = 
-    #var renderer = game.window.grenderer
-    game.window.present()
 
-    #draw(renderer, game.currentScene)
+proc draw*(game: var Game) = 
+    var window = game.sdl2_window
+    show(window)
+    var renderer = game.sdl2_renderer
+    renderer.setDrawColor(0, 0, 0, 255)
+    renderer.clear()
+    renderer.present()
+    #game.window.present()
+
+    draw(renderer, game.currentScene)
