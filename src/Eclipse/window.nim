@@ -8,46 +8,40 @@ import common
 import sdl2
 
 type EclipseWindow* = object
-    width: int
-    height: int
-    title: string
-    fullscreen: bool
-    flags: seq[cuint]
+    width*: int
+    height*: int
+    title*: string
+    fullscreen*: bool
+    flags*: seq[cuint]
 
+type WindowRenderer* = object
+    sdl2_renderer: RendererPtr
 
-proc newWindow*(width, height: int, title: string, fullscreen: bool = false, flags: seq[cuint] = @[]): (EclipseWindow, WindowPtr, RendererPtr) =
-    var window: EclipseWindow
-    window.width = width
-    window.height = height
-    window.title = title
-    window.fullscreen = fullscreen
-    window.flags = flags
+proc newWindow(ew: EclipseWindow): WindowPtr =
 
-    var sdl_window = createWindow(
-        title, 
+    result = createWindow(
+        ew.title.cstring, 
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED, 
-        width.cint, 
-        height.cint, 
-        SDL_WINDOW_SHOWN  #flags
-    )
-    
-    var sdl_renderer = createRenderer(
-      sdl_window, 
-      -1, 
-      Renderer_Accelerated or Renderer_PresentVsync or Renderer_TargetTexture
+        ew.width.cint,
+        ew.height.cint,
+        SDL_WINDOW_SHOWN
     )
 
-    sdlFailIf sdl_window.isNil: "window could not be created"
-    defer: 
-        sdl_window.destroy()
-        echo "window could not be created, exiting..."
-        #quit(1)
+proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool, flags: seq[cuint]): (EclipseWindow, WindowPtr) =
+    var ew = EclipseWindow(
+        width: width,
+        height: height,
+        title: title,
+        fullscreen: fullscreen,
+        flags: flags
+    )
 
-    sdlFailIf sdl_renderer.isNil: "renderer could not be created"
-    defer: 
-        sdl_renderer.destroy()
-        echo "renderer could not be created, exiting..."
-        #quit(1)
-    
-    return (window, sdl_window, sdl_renderer)
+    result = (ew, newWindow(ew))
+
+proc createWindowRenderer*(win: WindowPtr): WindowRenderer = 
+    WindowRenderer(
+        sdl2_renderer: createRenderer(win, -1, Renderer_Accelerated)
+    )
+
+proc get_renderer*(wr: WindowRenderer): RendererPtr = wr.sdl2_renderer

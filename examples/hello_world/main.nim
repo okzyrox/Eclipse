@@ -6,13 +6,13 @@ import std/logging
 import ../../src/Eclipse
 
 var mainGame = newGame()
-mainGame.add(newScene("main"))
 
-var mainScene = mainGame.get_current_scene()
+var (ew, window) = newEclipseWindow("Test Window", 800, 600, false, @[])
 
-var player = newEntity("player")
-player.position = Vec2(x: 100, y: 100)
-mainScene.add(player)
+var renderer = createWindowRenderer(window)
+var window_renderer = renderer.get_renderer()
+
+
 
 var fl = newFileLogger("log.txt")
 var cl = newConsoleLogger()
@@ -20,11 +20,15 @@ var cl = newConsoleLogger()
 addHandler(fl)
 addHandler(cl)
 
-#mainGame.switch_scene("main")
-log(lvlDebug, "Running")
-while mainGame.is_running():
-    #mainGame.draw()
+var running = true
+var evt = sdl2.defaultEvent
+while running:
+    window_renderer.draw(mainGame)
     mainGame.update()
+    while pollEvent(evt):
+        if evt.kind == QuitEvent:
+            running = false
+            break
     
 
 log(lvlDebug, "Done")
