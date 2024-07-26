@@ -75,7 +75,7 @@ proc update*(game: var Game) =
 
 proc draw*(renderer: WindowRenderer, entity: Entity) =
     #echo "Drawing entity: ", entity.id
-    renderer.get_sdl2_renderer().setDrawColor(255, 255, 255, 255) # white
+    renderer.get_sdl2_renderer().setDrawColor(entity.color.r, entity.color.g, entity.color.b, entity.color.a)
     var r = rect(
         cint(entity.position.x), cint(entity.position.y),
         cint(2 * entity.scale.x), cint(2 * entity.scale.y)

@@ -23,7 +23,7 @@ type Entity* = object
     rotation*: float
 
 proc newEntity*(id: string): Entity =
-    result = Entity(id: id, position: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), speed: Vec2(x: 0, y: 0), rotation: 0)
+    result = Entity(id: id, color: DrawColor(r: 255, g: 255, b: 255, a: 255), position: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), speed: Vec2(x: 0, y: 0), rotation: 0)
 
 
 proc update*(entity: Entity) =
@@ -31,7 +31,7 @@ proc update*(entity: Entity) =
     discard
 
 proc draw*(renderer: RendererPtr, entity: Entity) =
-    renderer.setDrawColor 255, 255, 255, 255 # white
+    renderer.setDrawColor(entity.color.r, entity.color.g, entity.color.b, entity.color.a)
     var r = rect(
         cint(entity.position.x), cint(entity.position.y),
         cint(2 * entity.scale.x), cint(2 * entity.scale.y)
