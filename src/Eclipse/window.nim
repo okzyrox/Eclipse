@@ -15,6 +15,7 @@ type EclipseWindow* = object
     flags*: seq[cuint]
 
 type WindowRenderer* = object
+    base_draw_color: DrawColor
     sdl2_renderer: RendererPtr
 
 proc newWindow(ew: EclipseWindow): WindowPtr =
@@ -44,4 +45,13 @@ proc createWindowRenderer*(win: WindowPtr): WindowRenderer =
         sdl2_renderer: createRenderer(win, -1, Renderer_Accelerated)
     )
 
-proc get_renderer*(wr: WindowRenderer): RendererPtr = wr.sdl2_renderer
+proc get_sdl2_renderer*(wr: WindowRenderer): RendererPtr = wr.sdl2_renderer
+
+proc clear*(wr: WindowRenderer): void =
+    var renderer = wr.get_sdl2_renderer()
+    var base_color = wr.base_draw_color
+    renderer.setDrawColor(base_color.r, base_color.g, base_color.b, base_color.a)
+    renderer.clear()
+
+proc present*(wr: WindowRenderer): void = 
+    wr.get_sdl2_renderer().present()

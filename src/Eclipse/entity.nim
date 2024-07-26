@@ -8,14 +8,22 @@ import sdl2
 
 import common
 
+type EntityMoveDir* = enum
+    emdUp
+    emdDown
+    emdLeft
+    emdRight
+
 type Entity* = object
-    id: string
+    id*: string
+    color*: DrawColor
     position*: Vec2
     scale*: Vec2
+    speed*: Vec2
     rotation*: float
 
 proc newEntity*(id: string): Entity =
-    result = Entity(id: id, position: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), rotation: 0)
+    result = Entity(id: id, position: Vec2(x: 0, y: 0), scale: Vec2(x: 1, y: 1), speed: Vec2(x: 0, y: 0), rotation: 0)
 
 
 proc update*(entity: Entity) =
@@ -29,3 +37,14 @@ proc draw*(renderer: RendererPtr, entity: Entity) =
         cint(2 * entity.scale.x), cint(2 * entity.scale.y)
     )
     renderer.fillRect(r)
+
+proc move*(entity: var Entity, dir: EntityMoveDir) = 
+    case dir:
+        of emdUp:
+            entity.position = entity.position + Vec2(x: 0, y: -entity.speed.y)
+        of emdDown:
+            entity.position = entity.position + Vec2(x: 0, y: entity.speed.y)
+        of emdLeft:
+            entity.position = entity.position + Vec2(x: -entity.speed.x, y: 0)
+        of emdRight:
+            entity.position = entity.position + Vec2(x: entity.speed.x, y: 0)

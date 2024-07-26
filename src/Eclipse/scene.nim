@@ -13,7 +13,7 @@ import common, entity
 type Scene* = object
     id*: string # scenes are stored by id
 
-    entities: seq[Entity]
+    entities*: seq[Entity]
     #objects: seq[Object]
 
 proc newScene*(id: string): Scene = 
@@ -30,4 +30,5 @@ proc update*(scene: var Scene) =
     
 proc draw*(renderer: RendererPtr, scene: var Scene) = 
     for entity in scene.entities:
+        echo "Drawing entity: ", entity.id
         draw(renderer, entity)

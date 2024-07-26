@@ -22,3 +22,8 @@ proc `-`*(a, b: Vec2): Vec2 = Vec2(x: a.x - b.x, y: a.y - b.y)
 proc `*`*(a, b: Vec2): Vec2 = Vec2(x: a.x * b.x, y: a.y * b.y)
 proc `/`*(a, b: Vec2): Vec2 = Vec2(x: a.x / b.x, y: a.y / b.y)
 
+type DrawColor* = object
+    r*: uint8
+    g*: uint8
+    b*: uint8
+    a*: uint8

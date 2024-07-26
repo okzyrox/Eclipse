@@ -7,7 +7,7 @@
 
 import sdl2
 
-import window, scene
+import common, window, scene, entity, inputs
 
 type GameData* = object
     id: string
@@ -17,7 +17,8 @@ type EclipseGame = object
     running*: bool #
 
     scenes: seq[Scene]
-    currentScene: Scene
+    currentScene*: Scene
+    inputManager*: InputManager
 
     delta_time_count: uint64
     delta_time_count_prev: uint64
@@ -31,6 +32,7 @@ proc newGame*(): Game =
     discard sdl2.init(INIT_EVERYTHING)
     result = Game(
         running: true,
+
         delta_time_count: getPerformanceCounter()
     )
 
@@ -38,12 +40,15 @@ proc is_running*(game: Game): bool = game.running
 
 proc get_dt*(game: Game): float32 = game.delta_time
 
-proc get_current_scene*(game: Game): Scene = game.currentScene
-
 proc add*(game: var Game, scene: Scene) = 
     game.scenes.add(scene)
     #if game.currentScene == nil:
     game.currentScene = scene
+
+# shorthand for adding an tntity to the current scene
+# kinda weird but who cares
+proc add*(game: var Game, entity: Entity) =
+    game.currentScene.add(entity)
 
 proc switch_scene*(game: var Game, scene: Scene) =
     if game.currentScene == scene:
@@ -68,11 +73,22 @@ proc update*(game: var Game) =
     game.delta_time = (game.delta_time_count - previousCounter).float / getPerformanceFrequency().float
     #game.currentScene.update()
 
+proc draw*(renderer: WindowRenderer, entity: Entity) =
+    #echo "Drawing entity: ", entity.id
+    renderer.get_sdl2_renderer().setDrawColor(255, 255, 255, 255) # white
+    var r = rect(
+        cint(entity.position.x), cint(entity.position.y),
+        cint(2 * entity.scale.x), cint(2 * entity.scale.y)
+    )
+    renderer.get_sdl2_renderer().fillRect(r)
 
-proc draw*(renderer: RendererPtr, game: var Game) = 
-    renderer.setDrawColor(0, 0, 0, 255)
+proc draw*(renderer: WindowRenderer, scene: var Scene) =
+    #echo "Drawing scene"
+    for entity in scene.entities:
+        draw(renderer, entity)
+
+proc draw*(renderer: WindowRenderer, game: var Game) =
+    #echo "Drawing game"
     renderer.clear()
-    renderer.present()
-    #game.window.present()
-
     draw(renderer, game.currentScene)
+    renderer.present()

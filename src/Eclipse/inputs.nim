@@ -7,6 +7,8 @@ import sdl2
 
 import common
 
+
+
 type InputKey* = enum
     Key_A, Key_B, Key_C, Key_D, Key_E
     Key_F, Key_G, Key_H, Key_I, Key_J
@@ -94,3 +96,10 @@ proc toKey*(sc: ScanCode): InputKey =
     
     of SDL_SCANCODE_UNKNOWN: Key_Unknown
     else: Key_Unknown
+
+type InputManager* = object
+    keys_pressed*: array[InputKey, bool]
+
+proc is_key_pressed*(im: InputManager, key: InputKey): bool = im.keys_pressed[key]
+
+proc set_key_pressed*(im: var InputManager, key: InputKey, pressed: bool) = im.keys_pressed[key] = pressed
