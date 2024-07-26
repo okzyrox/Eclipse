@@ -8,11 +8,12 @@
 
 import sdl2
 
-import common, entity
+import common, entity, scene_ui
 
 type Scene* = object
     id*: string # scenes are stored by id
 
+    ui*: SceneUI
     entities*: seq[Entity]
     #objects: seq[Object]
 
@@ -32,3 +33,4 @@ proc draw*(renderer: RendererPtr, scene: var Scene) =
     for entity in scene.entities:
         echo "Drawing entity: ", entity.id
         draw(renderer, entity)
+

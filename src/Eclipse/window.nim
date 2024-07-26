@@ -15,6 +15,7 @@ type EclipseWindow* = object
     flags*: seq[cuint]
 
 type WindowRenderer* = object
+    renderer_size*: Vec2
     base_draw_color: DrawColor
     sdl2_renderer: RendererPtr
 
@@ -41,8 +42,9 @@ proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool, flag
     result = (ew, newWindow(ew))
 
 proc createWindowRenderer*(win: WindowPtr): WindowRenderer = 
+    var size = win.getSize()
     WindowRenderer(
-        sdl2_renderer: createRenderer(win, -1, Renderer_Accelerated)
+        renderer_size: Vec2(x: size.x.float, y: size.y.float), sdl2_renderer: createRenderer(win, -1, Renderer_Accelerated)
     )
 
 proc get_sdl2_renderer*(wr: WindowRenderer): RendererPtr = wr.sdl2_renderer

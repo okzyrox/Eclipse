@@ -6,8 +6,9 @@
 ## Game houses all the scenes, and handles the game loop
 
 import sdl2
+import sdl2/ttf
 
-import common, window, scene, entity, inputs
+import common, window, scene, entity, inputs, scene_ui
 
 type GameData* = object
     id: string
@@ -92,3 +93,28 @@ proc draw*(renderer: WindowRenderer, game: var Game) =
     renderer.clear()
     draw(renderer, game.currentScene)
     renderer.present()
+
+proc draw*(renderer: WindowRenderer, ui_element: TextUIElement) =
+    case ui_element.elementType:
+        of uieText:
+            let text_ui_element = ui_element
+            var text_color = text_ui_element.fore_color
+            let 
+                surface = ttf.renderTextSolid(text_ui_element.font, cstring text_ui_element.text, text_color.toSDL2Color())
+                texture = renderer.get_sdl2_renderer().createTextureFromSurface(surface)
+
+            surface.freeSurface
+            defer: texture.destroy
+            var r = rect(
+                text_ui_element.position.x.cint,
+                text_ui_element.position.y.cint,
+                text_ui_element.scale.x.cint,
+                text_ui_element.scale.y.cint
+            )
+            renderer.get_sdl2_renderer().copy texture, nil, addr r
+            renderer.get_sdl2_renderer().fillRect(r)
+            
+    
+proc draw_ui*(renderer: WindowRenderer, scene: var Scene) =
+    for element in scene.ui.elements:
+        draw(renderer, element)

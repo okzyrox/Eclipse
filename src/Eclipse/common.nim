@@ -2,6 +2,9 @@
 # Author: ZyroX
 
 ## Common shared code
+## 
+
+import sdl2
 
 type SDLException* = object of CatchableError
 
@@ -27,3 +30,6 @@ type DrawColor* = object
     g*: uint8
     b*: uint8
     a*: uint8
+  
+proc toSDL2Color*(dc: DrawColor): Color = 
+  (r: dc.r.uint8, g: dc.g.uint8, b: dc.b.uint8, a: dc.a.uint8)

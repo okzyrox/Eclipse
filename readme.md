@@ -43,7 +43,7 @@ A `Entity` has the following properties:
 
 ## Todo List:
 
-- [ ] Fix examples (non working atm)
+- [x] Fix examples (non working atm)
 - [ ] Check for closing window actions
 - [ ] Add more components: audio, sprites, scripting (for entities), etc
 - [ ] Loading data from a `assets` folder (fonts, images, gifs, videos, spritemaps, etc)
