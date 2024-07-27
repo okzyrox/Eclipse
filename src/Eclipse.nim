@@ -9,9 +9,10 @@ import Eclipse/[
   entity,
   scene,
   inputs,
+  ui,
   common
 ]
 
 import sdl2
 
-export game, window, entity, scene, inputs, common, sdl2
+export game, window, entity, scene, inputs, common, ui, sdl2

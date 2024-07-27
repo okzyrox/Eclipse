@@ -27,7 +27,7 @@ proc newWindow(ew: EclipseWindow): WindowPtr =
         SDL_WINDOWPOS_CENTERED, 
         ew.width.cint,
         ew.height.cint,
-        SDL_WINDOW_SHOWN
+        SDL_WINDOW_SHOWN or SDL_WINDOW_RESIZABLE
     )
 
 proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool, flags: seq[cuint]): (EclipseWindow, WindowPtr) =

@@ -8,7 +8,7 @@
 import sdl2
 import sdl2/ttf
 
-import common, window, scene, entity, inputs, scene_ui
+import common, window, scene, entity, inputs, ui
 
 type GameData* = object
     id: string
@@ -20,6 +20,7 @@ type EclipseGame = object
     scenes: seq[Scene]
     currentScene*: Scene
     inputManager*: InputManager
+    fontManager*: FontManager
 
     delta_time_count: uint64
     delta_time_count_prev: uint64
@@ -30,7 +31,10 @@ type EclipseGame = object
 type Game* = ref EclipseGame
 
 proc newGame*(): Game = 
-    discard sdl2.init(INIT_EVERYTHING)
+    discard sdl2.init(INIT_EVERYTHING) # Init everything doesnt actually include external modules
+    # like ttf
+    if not ttfInit():
+        echo "Failed to initialize SDL2-TTF"
     result = Game(
         running: true,
 
@@ -50,6 +54,9 @@ proc add*(game: var Game, scene: Scene) =
 # kinda weird but who cares
 proc add*(game: var Game, entity: Entity) =
     game.currentScene.add(entity)
+
+proc remove*(game: var Game, entity: Entity) =
+    game.currentScene.remove(entity)
 
 proc switch_scene*(game: var Game, scene: Scene) =
     if game.currentScene == scene:
@@ -84,37 +91,51 @@ proc draw*(renderer: WindowRenderer, entity: Entity) =
     renderer.get_sdl2_renderer().fillRect(r)
 
 proc draw*(renderer: WindowRenderer, scene: var Scene) =
-    #echo "Drawing scene"
+    echo "Drawing scene"
     for entity in scene.entities:
         draw(renderer, entity)
 
 proc draw*(renderer: WindowRenderer, game: var Game) =
-    #echo "Drawing game"
-    renderer.clear()
     draw(renderer, game.currentScene)
-    renderer.present()
+
+
+## UI
 
 proc draw*(renderer: WindowRenderer, ui_element: TextUIElement) =
-    case ui_element.elementType:
-        of uieText:
-            let text_ui_element = ui_element
-            var text_color = text_ui_element.fore_color
-            let 
-                surface = ttf.renderTextSolid(text_ui_element.font, cstring text_ui_element.text, text_color.toSDL2Color())
-                texture = renderer.get_sdl2_renderer().createTextureFromSurface(surface)
+    var 
+        text_color = ui_element.fore_color
+        back_color = ui_element.back_color
+    let 
+        text_col = color(text_color.r, text_color.g, text_color.b, text_color.a)
+        back_col = color(back_color.r, back_color.g, back_color.b, back_color.a)
+        surface = ttf.renderTextSolid(ui_element.font, cstring ui_element.text, text_col)
+        texture = renderer.get_sdl2_renderer().createTextureFromSurface(surface)
 
-            surface.freeSurface
-            defer: texture.destroy
-            var r = rect(
-                text_ui_element.position.x.cint,
-                text_ui_element.position.y.cint,
-                text_ui_element.scale.x.cint,
-                text_ui_element.scale.y.cint
-            )
-            renderer.get_sdl2_renderer().copy texture, nil, addr r
-            renderer.get_sdl2_renderer().fillRect(r)
-            
+    surface.freeSurface()
+    defer: texture.destroy
+    var r = rect(
+        ui_element.position.x.cint,
+        ui_element.position.y.cint,
+        ui_element.scale.x.cint,
+        ui_element.scale.y.cint
+    )
+    renderer.get_sdl2_renderer().copy(texture, nil, addr r)
+    renderer.get_sdl2_renderer().fillRect(r)      
+  
     
-proc draw_ui*(renderer: WindowRenderer, scene: var Scene) =
+proc draw_ui*(game: var Game, renderer: WindowRenderer, scene: var Scene) =
     for element in scene.ui.elements:
-        draw(renderer, element)
+        if element of TextUIElement:
+            echo "Drawing text element"
+            # in hindsight this code looks awful
+            var text_element = cast[TextUIElement](element)
+            text_element.font = game.fontManager.getFont(text_element.font_id)
+            draw(renderer, text_element)
+        else:
+            echo "unfinished ui type"
+
+## Fonts
+
+
+proc addFont*(game: var Game, id: string, path: string): bool =
+    return game.fontManager.addFont(id, path)

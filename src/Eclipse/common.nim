@@ -4,7 +4,13 @@
 ## Common shared code
 ## 
 
+import std/[sequtils, tables, os]
+
 import sdl2
+import sdl2/ttf
+
+
+# sdl stuff
 
 type SDLException* = object of CatchableError
 
@@ -33,3 +39,31 @@ type DrawColor* = object
   
 proc toSDL2Color*(dc: DrawColor): Color = 
   (r: dc.r.uint8, g: dc.g.uint8, b: dc.b.uint8, a: dc.a.uint8)
+
+
+# Fonts
+
+type FontManager* = object
+    fonts*: Table[string, FontPtr]
+
+proc addFont*(fm: var FontManager, name: string, path: string, size: int = 16): bool = 
+    if not fileExists(path):
+        echo "File does not exist: ", path
+        return false
+    if name in fm.fonts:
+        echo "Font already exists in Game: ", name
+        return false
+
+    echo "Loading font: ", path
+    var font = ttf.openFont(path.cstring, size.cint)
+    
+    if font.isNil:
+        echo "Could not load font: ", path
+        return false
+    else:
+        echo "Loaded font: ", path
+        fm.fonts[name] = font
+        return true
+
+proc getFont*(fm: FontManager, name: string): FontPtr = 
+    fm.fonts[name]

@@ -8,7 +8,7 @@
 
 import sdl2
 
-import common, entity, scene_ui
+import common, entity, ui
 
 type Scene* = object
     id*: string # scenes are stored by id
@@ -23,7 +23,11 @@ proc newScene*(id: string): Scene =
 proc `==`*(a, b: Scene): bool = a.id == b.id
 proc `==`*(a: Scene, id: string): bool = a.id == id
 
-proc add*(scene: var Scene, entity: Entity) = scene.entities.add(entity)
+proc add*(scene: var Scene, entity: Entity) = 
+    scene.entities.add(entity)
+
+proc remove*(scene: var Scene, entity: Entity) =
+    scene.entities.delete(scene.entities.find(entity))
 
 proc update*(scene: var Scene) = 
     for entity in scene.entities:
@@ -34,3 +38,8 @@ proc draw*(renderer: RendererPtr, scene: var Scene) =
         echo "Drawing entity: ", entity.id
         draw(renderer, entity)
 
+proc add*(scene: var Scene, uiElement: UIElement) = 
+    scene.ui.elements.add(uiElement)
+
+proc remove*(scene: var Scene, uiElement: UIElement) = 
+    scene.ui.elements.delete(scene.ui.elements.find(uiElement))
