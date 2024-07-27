@@ -24,7 +24,9 @@ proc print_keys(game: var Game) =
         echo "D is pressed"
 
 while mainGame.running:
+    renderer.clear()
     renderer.draw(mainGame)
+    renderer.present()
     mainGame.update()
     mainGame.print_keys()
 

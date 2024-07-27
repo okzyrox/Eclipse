@@ -33,7 +33,9 @@ mainGame.add(enemy2)
 var evt = sdl2.defaultEvent
     
 while mainGame.running:
+    renderer.clear()
     renderer.draw(mainGame)
+    renderer.present()
     mainGame.update()
 
     while pollEvent(evt):
