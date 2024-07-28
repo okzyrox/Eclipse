@@ -8,6 +8,12 @@ I wrote this primarily because other game engines had too many problems ranging 
 - outdated
 - etc
 
+## Requirements
+
+- Nim programming language (ver 2.0.0 recommended because thats what I use)
+- Nim sdl2 library (`nimble install sdl2`)
+- SDL2 lib files in your Path (or local directory) (SDL2, SDL2-TTF, SDL2-MIXER, SDL2-IMAGE)
+
 ## The design
 
 Eclipse uses the following Architecture for games:
