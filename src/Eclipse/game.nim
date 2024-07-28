@@ -8,7 +8,7 @@
 import sdl2
 import sdl2/ttf
 
-import common, window, scene, entity, inputs, ui
+import common, window, scene, entity, inputs, ui, events
 
 type GameData* = object
     id: string
