@@ -6,5 +6,5 @@ nimdocs/
 *.a
 *.lib
 
-log.txt
+*.log
 .vscode/*

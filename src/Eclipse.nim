@@ -16,7 +16,7 @@ import Eclipse/[
 when defined(EclipseDebug):
   import std/logging
   var cl = newConsoleLogger(levelThreshold = lvlDebug)
-  var fl = newFileLogger(levelThreshold = lvlDebug)
+  var fl = newFileLogger("eclipse_debug.log", levelThreshold = lvlDebug)
   addHandler(cl)
   addHandler(fl)
 

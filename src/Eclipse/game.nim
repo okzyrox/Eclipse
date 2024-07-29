@@ -5,6 +5,8 @@
 ## 
 ## Game houses all the scenes, and handles the game loop
 
+import std/[logging]
+
 import sdl2
 import sdl2/ttf
 
@@ -154,3 +156,56 @@ proc addFont*(game: var Game, id: string, path: string): bool =
 
 proc getFont*(game: var Game, id: string): FontPtr =
     return game.fontManager.getFont(id)
+
+
+## Input
+
+
+proc updateInputs*(game: var Game, inputManager: var InputManager) =
+    inputManager.keys_pressed = {}
+    inputManager.keys_held = {}
+    inputManager.keys_just_released = {}
+    inputManager.mouse_pos = Vec2(x: 0, y: 0)
+    inputManager.mouse_pressed = {}
+    inputManager.mouse_held = {}
+    inputManager.mouse_just_released = {}
+
+    var evt = sdl2.defaultEvent
+    while pollEvent(evt):
+        case evt.kind
+        of QuitEvent:
+            game.running = false
+            break
+        of KeyDown:
+            if EclipseDebugging:
+                log(lvlDebug, "Key pressed: ", evt.key.keysym.scancode.toKey())
+            inputManager.keys_pressed.incl(evt.key.keysym.scancode.toKey())
+            inputManager.keys_held.incl(evt.key.keysym.scancode.toKey())
+            break
+        of KeyUp:
+            inputManager.keys_just_released.incl(evt.key.keysym.scancode.toKey())
+            inputManager.keys_held.excl(evt.key.keysym.scancode.toKey())
+            break
+        else:
+            #echo "Unimplemented input event"
+            discard
+        #[
+        of MouseButtonDown:
+            inputManager.mouse_pressed.incl(evt.button.button.toInputMouseKey())
+            inputManager.mouse_held.incl(evt.button.button.toInputMouseKey())
+        of MouseButtonUp:
+            inputManager.mouse_just_released.incl(evt.button.button.toInputMouseKey())
+            inputManager.mouse_held.excl(evt.button.button.toInputMouseKey())
+        ]#
+
+proc updateInputs*(game: var Game) =
+    updateInputs(game, game.input_manager)
+
+proc keyIsDown*(game: var Game, key: InputKey): bool =
+    return key in game.input_manager.keys_pressed
+
+proc keyIsHeld*(game: var Game, key: InputKey): bool =
+    return key in game.input_manager.keys_held
+
+proc keyIsReleased*(game: var Game, key: InputKey): bool =
+    return key in game.input_manager.keys_just_released

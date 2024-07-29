@@ -7,7 +7,10 @@ import sdl2
 
 import common
 
-
+type InputMouseKey* = enum
+    MouseLeft, 
+    MouseMiddle, 
+    MouseRight
 
 type InputKey* = enum
     Key_A, Key_B, Key_C, Key_D, Key_E
@@ -98,8 +101,22 @@ proc toKey*(sc: ScanCode): InputKey =
     else: Key_Unknown
 
 type InputManager* = object
-    keys_pressed*: array[InputKey, bool]
+    keys_pressed*: set[InputKey]
+    keys_held*: set[InputKey]
+    keys_just_released*: set[InputKey]
 
-proc is_key_pressed*(im: InputManager, key: InputKey): bool = im.keys_pressed[key]
+    mouse_pos*: Vec2
+    mouse_pressed*: set[InputMouseKey]
+    mouse_held*: set[InputMouseKey]
+    mouse_just_released*: set[InputMouseKey]
 
-proc set_key_pressed*(im: var InputManager, key: InputKey, pressed: bool) = im.keys_pressed[key] = pressed
+proc newInputManager*(): InputManager =
+    InputManager(
+        keys_pressed: {},
+        keys_held: {},
+        keys_just_released: {},
+        mouse_pos: Vec2(x: 0, y: 0),
+        mouse_pressed: {},
+        mouse_held: {},
+        mouse_just_released: {}
+    )

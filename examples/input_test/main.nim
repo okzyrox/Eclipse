@@ -13,32 +13,20 @@ mainGame.add(newScene("main"))
 
 var evt = sdl2.defaultEvent
 
-proc print_keys(game: var Game) =
-    if game.input_manager.is_key_pressed(Key_W):
-        echo "W is pressed"
-    if game.input_manager.is_key_pressed(Key_S):
-        echo "S is pressed"
-    if game.input_manager.is_key_pressed(Key_A):
-        echo "A is pressed"
-    if game.input_manager.is_key_pressed(Key_D):
-        echo "D is pressed"
 
 while mainGame.running:
     renderer.clear()
     renderer.draw(mainGame)
     renderer.present()
     mainGame.update()
-    mainGame.print_keys()
 
-    while pollEvent(evt):
-        if evt.kind == QuitEvent:
-            mainGame.running = false
-            break
-        if evt.kind == KeyDown:
-            var key = evt.key.keysym.scancode.toKey()
-            mainGame.input_manager.set_key_pressed(key, true)
-            break
-        if evt.kind == KeyUp:
-            var key = evt.key.keysym.scancode.toKey()
-            mainGame.inputManager.set_key_pressed(key, false)
-            break
+    updateInputs(mainGame)
+
+    if mainGame.keyIsDown(Key_W):
+        echo "W is pressed"
+    if mainGame.keyIsDown(Key_S):
+        echo "S is pressed"
+    if mainGame.keyIsDown(Key_A):
+        echo "A is pressed"
+    if mainGame.keyIsDown(Key_D):
+        echo "D is pressed"
