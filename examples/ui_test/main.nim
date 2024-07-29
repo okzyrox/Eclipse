@@ -17,7 +17,10 @@ if not mainGame.addFont("test_font", "sans.ttf"):
     mainGame.running = false
     quit(1)
 
-var text = newTextUIElement("hello_text", Vec2(x: 150, y: 150), Vec2(x: 128, y: 64), DrawColor(r: 255, g: 255, b: 255, a: 255), DrawColor(r: 0, g: 0, b: 0, a: 255), "test_font", "Hello World")
+var font = mainGame.getFont("test_font")
+
+var text = newTextElement("hello_text", "Hello World", Vec2(x: 150, y: 150), Vec2(x: 128, y: 64), DrawColor(r: 255, g: 255, b: 255, a: 255), DrawColor(r: 0, g: 0, b: 0, a: 255))
+text.setFont(font)
 
 mainGame.currentScene.add(text)
 
@@ -28,7 +31,7 @@ while mainGame.running:
     renderer.clear()
 
     renderer.draw(mainGame)
-    mainGame.draw_ui(renderer, mainGame.currentScene)
+    renderer.draw_ui(mainGame.currentScene)
 
     renderer.present()
     mainGame.update()

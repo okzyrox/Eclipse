@@ -32,6 +32,9 @@ type EclipseGame = object
 
 type Game* = ref EclipseGame
 
+proc `$`*(game: Game): string = 
+    "<Game: " & "running: " & $game.running & ">"
+
 proc newGame*(): Game = 
     discard sdl2.init(INIT_EVERYTHING) # Init everything doesnt actually include external modules
     # like ttf
@@ -109,6 +112,7 @@ proc draw*(renderer: WindowRenderer, ui_element: UIElement) =
     case ui_element.ui_type:
     of UIType.uitText:
         assert ui_element.t_font != nil, "No font set for text element"
+        echo "Drawing text: ", ui_element.t_text
         var 
             text_color = ui_element.fore_color
             back_color = ui_element.back_color
@@ -126,17 +130,27 @@ proc draw*(renderer: WindowRenderer, ui_element: UIElement) =
             ui_element.scale.x.cint,
             ui_element.scale.y.cint
         )
+        if EclipseDebugging:
+            echo "surface: ", surface.isNil
+            echo "texture: ", texture.isNil
+            echo "rect: ", r
         renderer.get_sdl2_renderer().copy(texture, nil, addr r)
         renderer.get_sdl2_renderer().fillRect(r)    
     of UIType.uitButton:
         discard
 
-proc draw_ui*(game: var Game, renderer: WindowRenderer, scene: var Scene) =
+proc draw_ui*(renderer: WindowRenderer, scene: var Scene) =
     for element in scene.ui.elements:
         draw(renderer, element)
+
+proc draw_ui*(renderer: WindowRenderer, game: var Game) =
+    draw_ui(renderer, game.currentScene)
 
 ## Fonts
 
 
 proc addFont*(game: var Game, id: string, path: string): bool =
     return game.fontManager.addFont(id, path)
+
+proc getFont*(game: var Game, id: string): FontPtr =
+    return game.fontManager.getFont(id)

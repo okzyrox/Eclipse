@@ -9,6 +9,10 @@ import std/[sequtils, tables, os]
 import sdl2
 import sdl2/ttf
 
+# Eclipse
+
+const EclipseDebugging* = defined(EclipseDebug) or false
+
 
 # sdl stuff
 
@@ -18,8 +22,6 @@ template sdlFailIf*(condition: typed, reason: string) =
   if condition: raise SDLException.newException(
     reason & ", SDL error " & $getError()
   )
-
-
 # object stuff
 
 type Vec2* = object

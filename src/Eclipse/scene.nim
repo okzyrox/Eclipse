@@ -23,6 +23,9 @@ proc newScene*(id: string): Scene =
 proc `==`*(a, b: Scene): bool = a.id == b.id
 proc `==`*(a: Scene, id: string): bool = a.id == id
 
+proc `$`*(scene: Scene): string =
+    "<Scene: " & "ID: " & scene.id & "> "
+
 proc add*(scene: var Scene, entity: Entity) = 
     scene.entities.add(entity)
 

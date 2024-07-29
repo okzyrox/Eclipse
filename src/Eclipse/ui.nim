@@ -39,6 +39,9 @@ type UIElement* = ref object of RootObj
     else:
         discard
 
+proc `$`*(element: UIElement): string =
+    "<UIElement: " & "ID: " & element.id & "> "
+
 type SceneUI* = object
     id*: string
     enabled*: bool
@@ -63,6 +66,16 @@ proc setFont*(element: UIElement, fm: FontManager, font_id: string) =
         var font = fm.fonts[font_id]
         element.t_font_id = font_id
         element.t_font = font
+    else:
+        echo "Error: Cannot set text on element of type: ", element.ui_type
+
+proc setFont*(element: UIElement, font: FontPtr) =
+    case element.ui_type
+    of uitText:
+        if font.isNil:
+            echo "Error: Font is nil"
+        else:
+            element.t_font = font
     else:
         echo "Error: Cannot set text on element of type: ", element.ui_type
 
