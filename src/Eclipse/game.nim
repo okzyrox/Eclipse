@@ -10,6 +10,8 @@ import sdl2/ttf
 
 import common, window, scene, entity, inputs, ui, events
 
+var EngineReadyEvent* = newEvent()
+
 type GameData* = object
     id: string
     value: (int, float, string) 
@@ -22,9 +24,9 @@ type EclipseGame = object
     inputManager*: InputManager
     fontManager*: FontManager
 
-    delta_time_count: uint64
-    delta_time_count_prev: uint64
-    delta_time*: float32
+    deltaTimeCount: uint64
+    deltaTimeCountPrev: uint64
+    deltaTime*: float32
     #data: seq[GameData]
     evt: Event
 
@@ -35,15 +37,17 @@ proc newGame*(): Game =
     # like ttf
     if not ttfInit():
         echo "Failed to initialize SDL2-TTF"
+    
+    EngineReadyEvent.FireAll()
     result = Game(
         running: true,
 
-        delta_time_count: getPerformanceCounter()
+        deltaTimeCount: getPerformanceCounter()
     )
 
 proc is_running*(game: Game): bool = game.running
 
-proc get_dt*(game: Game): float32 = game.delta_time
+proc get_dt*(game: Game): float32 = game.deltaTime
 
 proc add*(game: var Game, scene: Scene) = 
     game.scenes.add(scene)
@@ -75,10 +79,10 @@ proc switch_scene*(game: var Game, id: string) =
         
 
 proc update*(game: var Game) = 
-    var previousCounter = game.delta_time_count
-    game.delta_time_count = getPerformanceCounter()
+    var previousCounter = game.deltaTimeCount
+    game.deltaTimeCount = getPerformanceCounter()
 
-    game.delta_time = (game.delta_time_count - previousCounter).float / getPerformanceFrequency().float
+    game.deltaTime = (game.deltaTimeCount - previousCounter).float / getPerformanceFrequency().float
     #game.currentScene.update()
 
 proc draw*(renderer: WindowRenderer, entity: Entity) =
@@ -91,7 +95,7 @@ proc draw*(renderer: WindowRenderer, entity: Entity) =
     renderer.get_sdl2_renderer().fillRect(r)
 
 proc draw*(renderer: WindowRenderer, scene: var Scene) =
-    echo "Drawing scene"
+    #echo "Drawing scene"
     for entity in scene.entities:
         draw(renderer, entity)
 
@@ -101,38 +105,35 @@ proc draw*(renderer: WindowRenderer, game: var Game) =
 
 ## UI
 
-proc draw*(renderer: WindowRenderer, ui_element: TextUIElement) =
-    var 
-        text_color = ui_element.fore_color
-        back_color = ui_element.back_color
-    let 
-        text_col = color(text_color.r, text_color.g, text_color.b, text_color.a)
-        back_col = color(back_color.r, back_color.g, back_color.b, back_color.a)
-        surface = ttf.renderTextSolid(ui_element.font, cstring ui_element.text, text_col)
-        texture = renderer.get_sdl2_renderer().createTextureFromSurface(surface)
+proc draw*(renderer: WindowRenderer, ui_element: UIElement) =
+    case ui_element.ui_type:
+    of UIType.uitText:
+        assert ui_element.t_font != nil, "No font set for text element"
+        var 
+            text_color = ui_element.fore_color
+            back_color = ui_element.back_color
+        let 
+            text_col = color(text_color.r, text_color.g, text_color.b, text_color.a)
+            back_col = color(back_color.r, back_color.g, back_color.b, back_color.a)
+            surface = ttf.renderTextSolid(ui_element.t_font, cstring ui_element.t_text, text_col)
+            texture = renderer.get_sdl2_renderer().createTextureFromSurface(surface)
 
-    surface.freeSurface()
-    defer: texture.destroy
-    var r = rect(
-        ui_element.position.x.cint,
-        ui_element.position.y.cint,
-        ui_element.scale.x.cint,
-        ui_element.scale.y.cint
-    )
-    renderer.get_sdl2_renderer().copy(texture, nil, addr r)
-    renderer.get_sdl2_renderer().fillRect(r)      
-  
-    
+        surface.freeSurface()
+        defer: texture.destroy
+        var r = rect(
+            ui_element.position.x.cint,
+            ui_element.position.y.cint,
+            ui_element.scale.x.cint,
+            ui_element.scale.y.cint
+        )
+        renderer.get_sdl2_renderer().copy(texture, nil, addr r)
+        renderer.get_sdl2_renderer().fillRect(r)    
+    of UIType.uitButton:
+        discard
+
 proc draw_ui*(game: var Game, renderer: WindowRenderer, scene: var Scene) =
     for element in scene.ui.elements:
-        if element of TextUIElement:
-            echo "Drawing text element"
-            # in hindsight this code looks awful
-            var text_element = cast[TextUIElement](element)
-            text_element.font = game.fontManager.getFont(text_element.font_id)
-            draw(renderer, text_element)
-        else:
-            echo "unfinished ui type"
+        draw(renderer, element)
 
 ## Fonts
 

@@ -11,54 +11,81 @@ import common
 
 type
   GameEvent* = ref object of RootObj
-    listeners*: Table[int, EventListener]
+    connections*: Table[string, EventConnection]
 
-  EventListener* = ref object of RootObj
+  EventConnection* = ref object of RootObj
     canFire*: bool
+    once*: bool
     event*: GameEvent
-    procedure*: proc(ge: GameEvent)
+    procedure*: proc(ge: GameEvent): void
 
 ## Permanent listeners
-proc addListener*(event: GameEvent, listener: EventListener) =
-    event.listeners[event.listeners.len] = listener
+proc Connect*(event: GameEvent, id: string, connection: EventConnection) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    event.connections[id] = connection
 
-proc addListener*(event: GameEvent, procedure: proc(ge: GameEvent)) =
-    event.listeners[event.listeners.len] = EventListener(canFire: true, event: event, procedure: procedure)
+proc Connect*(event: GameEvent, id: string, procedure: proc(ge: GameEvent)) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    event.connections[id] = EventConnection(canFire: true, event: event, procedure: procedure)
 
-proc addListener*[T: bool | int | float | string](event: GameEvent, procedure: proc(ge: GameEvent): T) =
-    event.listeners[event.listeners.len] = EventListener(canFire: true, event: event, procedure: procedure)
+proc Connect*[T](event: GameEvent, id: string, procedure: proc(ge: GameEvent): T) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    event.connections[id] = EventConnection(canFire: true, event: event, procedure: procedure)
 
-proc removeListener*(event: GameEvent, listener: EventListener) =
-    event.listeners[event.listeners.find(listener)] = nil
+proc Remove*(event: GameEvent, id: string) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    event.connections[id] = nil
 
-proc deactivateListener*(event: GameEvent, listener: EventListener) =
-    listener.canFire = false
+proc Remove*(event: GameEvent, connection: EventConnection) =
+    ## seems slow
+    for id, c in event.connections:
+        if c == connection:
+            event.connections[id] = nil
 
-proc activateListener*(event: GameEvent, listener: EventListener) =
-    listener.canFire = true
+proc Deactivate*(event: GameEvent, connection: EventConnection) =
+    connection.canFire = false
 
-## Once listener (fires once, then removes the listener)
+proc Deactivate*(event: GameEvent, id: string) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    event.connections[id].canFire = false
+
+proc Activate*(event: GameEvent, connection: EventConnection) =
+    connection.canFire = true
+
+## Once connection (fires once, then removes the listener)
 ## We kinda cheat this buy adding two listeners:
 ## - 1 for the main listener ('s)
 ## - 1 for the destroy listener (which deactivates the main listener)
-proc addOnceListener*(event: GameEvent, listener: EventListener) =
-    event.addListener(listener)
-    event.addListener(EventListener(event: event, procedure: (proc(ge: GameEvent) = deactivateListener(event, listener))))
+proc Once*(event: GameEvent, id: string, connection: EventConnection) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    connection.canFire = true
+    connection.once = true
+    event.Connect(id, connection)
 
-proc addOnceListener*(event: GameEvent, procedure: proc(ge: GameEvent)) =
-    var listener = EventListener(event: event, procedure: procedure)
-    event.addListener(listener)
-    event.addListener(EventListener(event: event, procedure: (proc(ge: GameEvent) = deactivateListener(event, listener))))
+proc Once*(event: GameEvent, id: string, procedure: proc(ge: GameEvent)) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    var connection = EventConnection(event: event, canFire: true, once: true, procedure: procedure)
+    event.Connect(id, connection)
 
-proc addOnceListener*[T: bool | int | float | string](event: GameEvent, procedure: proc(ge: GameEvent): T) =
-    var listener = EventListener(event: event, procedure: procedure)
-    event.addListener(listener)
-    event.addListener(EventListener(event: event, procedure: (proc(ge: GameEvent) = deactivateListener(event, listener))))
+proc Once*[T](event: GameEvent, id: string, procedure: proc(ge: GameEvent): T) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    var connection = EventConnection(event: event, canFire: true, once: true, procedure: procedure)
+    event.Connect(id, connection)
 
-proc fireEvent*(event: GameEvent) =
-  for id, listener in event.listeners:
-    if listener.canFire:
-        listener.procedure(event)
+proc FireAll*(event: GameEvent) =
+    for id, connection in event.connections:
+        if connection.canFire:
+            connection.procedure(event)
+            if connection.once:
+                connection.canFire = false # requires manual cleanp
+
+    
+proc Fire*(event: GameEvent, id: string) =
+    assert not event.connections.hasKey(id), "Connection with that id already exists (id: " & id & ")"
+    var connection = event.connections[id]
+    connection.procedure(event)
+    if connection.once:
+        event.connections[id] = nil
 
 proc newEvent*(): GameEvent = 
     GameEvent()

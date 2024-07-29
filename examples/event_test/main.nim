@@ -9,18 +9,24 @@ var renderer = createWindowRenderer(window)
 
 # Start game
 
+var ePressedEvent = newEvent()
+var fPressedEvent = newEvent()
+
+var ep_debounce = false
+var fp_debounce = false
+
+# "Connect" events can be fired as many times as possible
+# "Once" events only fire once, then they are disabled
+
+# They have to be destroyed manually
+fPressedEvent.Connect("f_pressed", (proc(ge: GameEvent) = echo "Pressed F")) # example use, dont do this for inputs tho!!!
+ePressedEvent.Once("game_started", (proc(ge: GameEvent) = echo "Pressed E")) 
+
 var mainGame = newGame()
 mainGame.add(newScene("main"))
 
 var evt = sdl2.defaultEvent
-
-var gameStartedEvent = newEvent()
-var event_debounce = false
-
-gameStartedEvent.addOnceListener((proc(ge: GameEvent) = echo "game started"))
-
 while mainGame.running:
-    gameStartedEvent.fireEvent()
     renderer.clear()
     renderer.draw(mainGame)
     renderer.present()
@@ -32,9 +38,24 @@ while mainGame.running:
             break
         if evt.kind == KeyDown:
             var key = evt.key.keysym.scancode.toKey()
-            mainGame.input_manager.set_key_pressed(key, true)
+
+            if key == Key_E and not ep_debounce:
+                echo "Attempting to fire: e_pressed"
+                ep_debounce = true
+                ePressedEvent.FireAll() # Fires all the connections for an event
+                # you can also use `gameStartedEvent.Fire("game_started")`, to fire the specific one
+
+            if key == Key_F and not fp_debounce:
+                echo "Attempting to fire: f_pressed"
+                fp_debounce = true
+                fPressedEvent.FireAll()
             break
         if evt.kind == KeyUp:
             var key = evt.key.keysym.scancode.toKey()
-            mainGame.inputManager.set_key_pressed(key, false)
+
+            if key == Key_E:
+                ep_debounce = false
+
+            if key == Key_F:
+                fp_debounce = false
             break
