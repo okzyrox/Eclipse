@@ -5,7 +5,7 @@
 ## 
 ## Game houses all the scenes, and handles the game loop
 
-import std/[logging]
+import std/[logging, tables]
 
 import sdl2
 import sdl2/ttf
@@ -99,7 +99,7 @@ proc draw*(renderer: WindowRenderer, entity: Entity) =
 
 proc draw*(renderer: WindowRenderer, scene: var Scene) =
     #echo "Drawing scene"
-    for entity in scene.entities:
+    for id, entity in scene.entities:
         draw(renderer, entity)
 
 proc draw*(renderer: WindowRenderer, game: var Game) =

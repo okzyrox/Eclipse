@@ -27,7 +27,6 @@ player.add(
             
     )
 )
-
 var evt = sdl2.defaultEvent
     
 while mainGame.running:
