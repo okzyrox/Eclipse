@@ -46,7 +46,6 @@ proc newGame*(): Game =
     EngineReadyEvent.FireAll()
     result = Game(
         running: true,
-
         deltaTimeCount: getPerformanceCounter()
     )
 
@@ -88,10 +87,9 @@ proc update*(game: var Game) =
     game.deltaTimeCount = getPerformanceCounter()
 
     game.deltaTime = (game.deltaTimeCount - previousCounter).float / getPerformanceFrequency().float
-    #game.currentScene.update()
+    game.currentScene.update()
 
 proc draw*(renderer: WindowRenderer, entity: Entity) =
-    #echo "Drawing entity: ", entity.id
     renderer.get_sdl2_renderer().setDrawColor(entity.color.r, entity.color.g, entity.color.b, entity.color.a)
     var r = rect(
         cint(entity.position.x), cint(entity.position.y),
@@ -105,7 +103,8 @@ proc draw*(renderer: WindowRenderer, scene: var Scene) =
         draw(renderer, entity)
 
 proc draw*(renderer: WindowRenderer, game: var Game) =
-    draw(renderer, game.currentScene)
+   # draw(renderer, game.currentScene)
+    draw(renderer.get_sdl2_renderer(), game.currentScene)
 
 
 ## UI

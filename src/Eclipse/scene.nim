@@ -38,7 +38,6 @@ proc update*(scene: var Scene) =
     
 proc draw*(renderer: RendererPtr, scene: var Scene) = 
     for entity in scene.entities:
-        echo "Drawing entity: ", entity.id
         draw(renderer, entity)
 
 proc add*(scene: var Scene, uiElement: UIElement) = 

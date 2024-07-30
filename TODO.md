@@ -21,7 +21,7 @@
     - [ ] Add debounce system to reduce issues with key spam
 - [ ] Add Components:
     - Components are attached to entities, scenes, parts, etc. They are run every time the parent of the component is updated or drawn.
-    - [ ] Script Components (scripts that are run on the entity, such as a gravity script, or collider script)
+    - [x] Script Components (scripts that are run on the entity, such as a gravity script, or collider script)
     - [ ] Shader Component (applys a shader)
 - [ ] Add UI Components (seperate from ScriptComponents, ShaderComponents, etc):
     - [ ] Frame (used to encapsulate a list of UI Elements, which are positioned and scaled based on the frame size)
