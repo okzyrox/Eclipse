@@ -1,7 +1,6 @@
 # Entity test
 
 import ../../src/Eclipse
-import ../../src/Eclipse/events
 
 # Init window and renderer
 var (ew, window) = newEclipseWindow("Input tests", 800, 600, false, @[])
@@ -24,6 +23,9 @@ ePressedEvent.Once("game_started", (proc(ge: GameEvent) = echo "Pressed E"))
 
 var mainGame = newGame()
 mainGame.add(newScene("main"))
+
+WindowCloseEvent.Connect("before_close", (proc(ge: GameEvent) = echo "Window about to close"))
+WindowCloseEvent.Connect("window_close", (proc(ge: GameEvent) = mainGame.running = false))
 
 var evt = sdl2.defaultEvent
 while mainGame.running:

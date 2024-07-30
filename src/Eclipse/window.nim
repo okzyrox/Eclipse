@@ -16,7 +16,7 @@ type EclipseWindow* = object
 
 type WindowRenderer* = object
     renderer_size*: Vec2
-    base_draw_color: DrawColor
+    base_draw_color*: DrawColor
     sdl2_renderer: RendererPtr
 
 proc newWindow(ew: EclipseWindow): WindowPtr =

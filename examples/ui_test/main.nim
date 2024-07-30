@@ -11,6 +11,7 @@ var renderer = createWindowRenderer(window)
 # Start game
 
 var mainGame = newGame()
+WindowCloseEvent.Connect("window_close", (proc(ge: GameEvent) = mainGame.running = false))
 #mainGame.add() # Currently the newest scene added is the currentscene, need to change
 var mainScene = newScene("main")
 
@@ -37,7 +38,4 @@ while mainGame.running:
     renderer.present()
     mainGame.update()
 
-    while pollEvent(evt):
-        if evt.kind == QuitEvent:
-            mainGame.running = false
-            break
+    updateInputs(mainGame)

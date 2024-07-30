@@ -13,6 +13,7 @@ import sdl2/ttf
 import common, window, scene, entity, inputs, ui, events
 
 var EngineReadyEvent* = newEvent()
+var WindowCloseEvent* = newEvent()
 
 type GameData* = object
     id: string
@@ -173,7 +174,7 @@ proc updateInputs*(game: var Game, inputManager: var InputManager) =
     while pollEvent(evt):
         case evt.kind
         of QuitEvent:
-            game.running = false
+            WindowCloseEvent.FireAll()
             break
         of KeyDown:
             if EclipseDebugging:

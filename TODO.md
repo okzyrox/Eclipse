@@ -1,7 +1,7 @@
 # A more complete TODO list
 
 - [x] Fix examples (non working atm)
-- [ ] Check for closing window actions (Event????)
+- [x] Check for closing window actions (Event????)
 - [ ] Add threads / threading system to reduce load in larger projects on CPU
 - [ ] More features:
     - [x] Basic Events
@@ -9,7 +9,7 @@
     - [ ] Better global UI
     - [ ] Keymapping, etc (keymapping done through saving)
     - [ ] Data saving and loading
-    - [ ] Popup windows
+    - [ ] Popup windows (might need Winim or something else)
     - [ ] Images, loading tilemaps, loading animated sprites, etc
     - [ ] Loading videos, gifs, etc
     - [ ] Built in physics engine (for entitys)
@@ -46,6 +46,6 @@
 
 - [ ] Add template / starter projects
 - [ ] Integrations with service provider APIs (Steam, Epic, etc)
-- [ ] Give programmable control to the eclipse window (such as moving, resizing, fullscreen, etc)
+- [x] Give programmable control to the eclipse window (such as moving, resizing, fullscreen, etc)
 - [ ] Add more components: audio, sprites, scripting (for entities), etc
 - [ ] Loading data from a `assets` folder (fonts, images, gifs, videos, spritemaps, etc)
