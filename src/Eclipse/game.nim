@@ -43,6 +43,7 @@ proc newGame*(): Game =
     # like ttf
     if not ttfInit():
         echo "Failed to initialize SDL2-TTF"
+        ttfQuit()
     
     EngineReadyEvent.FireAll()
     result = Game(
@@ -113,31 +114,38 @@ proc draw*(renderer: WindowRenderer, game: var Game) =
 proc draw*(renderer: WindowRenderer, ui_element: UIElement) =
     case ui_element.ui_type:
     of UIType.uitText:
-        assert ui_element.t_font != nil, "No font set for text element"
-        echo "Drawing text: ", ui_element.t_text
+        if ui_element.t_font.isNil:
+            echo "Font is nil"
+        let sdl2_renderer = renderer.sdl2_renderer
         var 
             text_color = ui_element.fore_color
-            back_color = ui_element.back_color
-        let 
-            text_col = color(text_color.r, text_color.g, text_color.b, text_color.a)
-            back_col = color(back_color.r, back_color.g, back_color.b, back_color.a)
-            surface = ttf.renderTextSolid(ui_element.t_font, cstring ui_element.t_text, text_col)
-            texture = renderer.get_sdl2_renderer().createTextureFromSurface(surface)
+            has_border = ui_element.t_border_size > 0
+        
+        if has_border:
+            ui_element.t_font.setFontOutline(ui_element.t_border_size.cint)
+            var temp = cast[UIElement](ui_element)
+            temp.fore_color = ui_element.t_border_color
+            temp.t_border_size = 0
+            draw(renderer, temp)
+            
+        let surface = ui_element.t_font.renderUtf8Blended(ui_element.t_text.cstring, (text_color.r, text_color.g, text_color.b, text_color.a))
+        if surface.isNil: 
+            echo "Could not render text surface"
+
+        discard surface.setSurfaceAlphaMod(text_color.a)
+        
+        var outline = if has_border: ui_element.t_border_size else: 0
+        var source = rect(0, 0, surface.w, surface.h)
+        var dest = rect(ui_element.position.x.cint - outline.cint, ui_element.position.y.cint - outline.cint, surface.w, surface.h)
+        let texture = sdl2_renderer.createTextureFromSurface(surface)
+
+        if texture.isNil:
+            echo "Could not create texture from rendered text"
 
         surface.freeSurface()
-        defer: texture.destroy
-        var r = rect(
-            ui_element.position.x.cint,
-            ui_element.position.y.cint,
-            ui_element.scale.x.cint,
-            ui_element.scale.y.cint
-        )
-        if EclipseDebugging:
-            echo "surface: ", surface.isNil
-            echo "texture: ", texture.isNil
-            echo "rect: ", r
-        renderer.get_sdl2_renderer().copy(texture, nil, addr r)
-        renderer.get_sdl2_renderer().fillRect(r)    
+
+        sdl2_renderer.copyEx(texture, source, dest, angle = 0.0, center = nil,
+                        flip = SDL_FLIP_NONE)
     of UIType.uitButton:
         discard
 
