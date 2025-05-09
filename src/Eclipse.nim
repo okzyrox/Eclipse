@@ -6,12 +6,10 @@
 import Eclipse/[
   game,
   window,
-  entity,
   scene,
   inputs,
-  ui,
+  #ui,
   events,
-  component,
   common
 ]
 
@@ -24,4 +22,5 @@ when defined(EclipseDebug):
 
 import sdl2
 
-export game, window, entity, scene, inputs, ui, events, component, common, sdl2
+export game, window, scene, inputs, events, common, sdl2
+# ui,
