@@ -14,7 +14,9 @@ import Eclipse/[
 ]
 
 when defined(EclipseDebug):
-  import std/logging
+  import std/[logging, os]
+  if fileExists("eclipse_debug.log"):
+    removeFile("eclipse_debug.log")
   var cl = newConsoleLogger(levelThreshold = lvlDebug)
   var fl = newFileLogger("eclipse_debug.log", levelThreshold = lvlDebug)
   addHandler(cl)

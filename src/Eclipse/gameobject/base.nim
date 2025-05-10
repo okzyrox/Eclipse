@@ -3,9 +3,10 @@
 
 ## GameObject (and components)
 
-import ./[common]
-
 import std/[random, options]
+
+import ../[common]
+
 
 const
   ObjectCap* = 100000 # todo: have a way of checking for the cap..

@@ -3,12 +3,12 @@
 
 ## Scene
 ##
-## Scene holds a collection of entities, objects, and other things that can be rendered
+## Scene holds a collection of objects and other things that can be rendered
 ##
 
 import sdl2
 
-import gameobject
+import gameobject/[base]
 
 type Scene* = object
   id*: string # stored by id

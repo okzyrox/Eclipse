@@ -5,11 +5,10 @@
 ##
 ## Game houses all the scenes, and handles the game loop
 
-import std/[logging]
-
 import sdl2
 
-import ./[common, window, scene, inputs, events, gameobject]
+import ./[common, window, scene, inputs, events]
+import gameobject/[base]
 
 type GameData* = object
   id: string
@@ -49,7 +48,7 @@ proc newGame*(): Game =
       running: true,
       deltaTimeCount: getPerformanceCounter()
   )
-  result.onStart.FireAll()
+  result.onStart.fireAll()
 
 proc get_dt*(game: Game): float32 = game.deltaTime
 
@@ -62,10 +61,10 @@ proc add*(game: var Game, scene: Scene) =
 
 proc switch_scene*(game: var Game, scene: Scene) =
   if game.currentScene == scene:
-    echo "Already on that scene"
+    logEclipse "Already on that scene"
     return
   elif game.currentScene notin game.scenes:
-    echo "Scene not found"
+    logEclipse "Scene not found"
     return
   else:
     game.currentScene = scene
@@ -156,7 +155,7 @@ proc draw*(ew: EclipseWindow, game: var Game) =
 #     return game.fontManager.getFont(id)
 
 proc stop*(game: var Game) =
-  game.onStop.FireAll()
+  game.onStop.fireAll()
   game.running = false
     
 
@@ -167,8 +166,11 @@ proc updateInputs*(game: var Game) =
   if state == WindowQuit:
       game.stop()
   else:
-    log(lvlDebug, "Event: ", $state)
-    discard
+    if state == None:
+      discard
+    else:
+      logEclipse "Event: ", $state
+      discard
 
 proc keyIsDown*(game: var Game, key: InputKey): bool =
   return game.inputManager.keyIsDown(key)

@@ -11,9 +11,9 @@ game.add(newScene("main")) # initialise a blank scene
 var window = newEclipseWindow("V2 Window test", 800, 600, false, @[])
 
 # connect to close event
-game.onStop.Connect("close1", (
+game.onStop.connect("close1", (
   proc(ge: GameEvent) = 
-  echo "I listen to when the Window is about to close; its closing right now!!"
+    echo "I listen to when the Window is about to close; its closing right now!!"
 ))
 
 while game.running:

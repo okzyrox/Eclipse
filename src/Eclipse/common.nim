@@ -4,17 +4,15 @@
 ## Common shared code
 ##
 
-import std/[tables, os]
+import std/[tables, os, logging]
 
 import sdl2
 import sdl2/ttf
 
 # Eclipse
+const EclipseDebugging* = defined(EclipseDebug)
 
-const EclipseDebugging* = defined(EclipseDebug) or true
-
-
-# sdl stuff
+# sdl 
 
 type SDLException* = object of CatchableError
 
@@ -22,7 +20,8 @@ template sdlFailIf*(condition: typed, reason: string) =
   if condition: raise SDLException.newException(
     reason & ", SDL error " & $getError()
   )
-# object stuff
+
+# types stuff
 
 type Vec2* = object
   x*: float
@@ -33,28 +32,26 @@ type Vec3* = object
   y*: float
   z*: float
 
-proc `+`*(a, b: Vec2): Vec2 = Vec2(x: a.x + b.x, y: a.y + b.y)
-proc `-`*(a, b: Vec2): Vec2 = Vec2(x: a.x - b.x, y: a.y - b.y)
-proc `*`*(a, b: Vec2): Vec2 = Vec2(x: a.x * b.x, y: a.y * b.y)
-proc `/`*(a, b: Vec2): Vec2 = Vec2(x: a.x / b.x, y: a.y / b.y)
-
-proc `+`*(a, b: Vec3): Vec3 = Vec3(x: a.x + b.x, y: a.y + b.y, z: a.z + b.z)
-proc `-`*(a, b: Vec3): Vec3 = Vec3(x: a.x - b.x, y: a.y - b.y, z: a.z - b.z)
-proc `*`*(a, b: Vec3): Vec3 = Vec3(x: a.x * b.x, y: a.y * b.y, z: a.z * b.z)
-proc `/`*(a, b: Vec3): Vec3 = Vec3(x: a.x / b.x, y: a.y / b.y, z: a.z / b.z)
-
-proc `==`*(a, b: Vec2): bool = (a.x == b.x) and (a.y == b.y)
-proc `==`*(a, b: Vec3): bool = (a.x == b.x) and (a.y == b.y) and (a.z == b.z)
-
 type DrawColor* = object
   r*: uint8
   g*: uint8
   b*: uint8
   a*: uint8
 
-proc toSDL2Color*(dc: DrawColor): Color =
-  (r: dc.r.uint8, g: dc.g.uint8, b: dc.b.uint8, a: dc.a.uint8)
+type EclipseTexture* = object 
+  texturePtr*: TexturePtr
+  path*: string
+  width*: int
+  height*: int
+  color*: DrawColor
 
+# logger
+
+proc logEclipse*(msg: varargs[string]): void =
+  if EclipseDebugging:
+    log(lvlDebug, msg)
+  else:
+    echo msg
 
 # Fonts
 
