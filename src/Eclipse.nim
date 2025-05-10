@@ -10,10 +10,17 @@ import Eclipse/[
   inputs,
   #ui,
   events,
-  common
+  common,
+  attribute,
+  utils
 ]
 
-when defined(EclipseDebug):
+import Eclipse/gameobject/[
+  base,
+  drawable
+]
+
+when EclipseDebugging:
   import std/[logging, os]
   if fileExists("eclipse_debug.log"):
     removeFile("eclipse_debug.log")
@@ -24,5 +31,6 @@ when defined(EclipseDebug):
 
 import sdl2
 
-export game, window, scene, inputs, events, common, sdl2
+export game, window, scene, inputs, events, common, attribute, utils, sdl2
+export base, drawable
 # ui,

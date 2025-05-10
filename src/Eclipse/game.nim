@@ -50,7 +50,7 @@ proc newGame*(): Game =
   )
   result.onStart.fireAll()
 
-proc get_dt*(game: Game): float32 = game.deltaTime
+proc getDt*(game: Game): float32 = game.deltaTime
 
 proc add*(game: var Game, scene: Scene) =
   game.scenes.add(scene)
@@ -59,7 +59,7 @@ proc add*(game: var Game, scene: Scene) =
 # shorthand for adding an tntity to the current scene
 # kinda weird but who cares
 
-proc switch_scene*(game: var Game, scene: Scene) =
+proc switchScene*(game: var Game, scene: Scene) =
   if game.currentScene == scene:
     logEclipse "Already on that scene"
     return
@@ -69,7 +69,7 @@ proc switch_scene*(game: var Game, scene: Scene) =
   else:
     game.currentScene = scene
 
-proc switch_scene*(game: var Game, id: string) =
+proc switchScene*(game: var Game, id: string) =
   for scene in game.scenes:
     if scene.id == id:
       game.switch_scene(scene)

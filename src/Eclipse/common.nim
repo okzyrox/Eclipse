@@ -47,11 +47,16 @@ type EclipseTexture* = object
 
 # logger
 
+proc crush(args: varargs[string]): string =
+  result = ""
+  for arg in args:
+    result.add(arg)
+
 proc logEclipse*(msg: varargs[string]): void =
   if EclipseDebugging:
     log(lvlDebug, msg)
-  else:
-    echo msg
+  # else:
+  #   echo crush(msg)
 
 # Fonts
 

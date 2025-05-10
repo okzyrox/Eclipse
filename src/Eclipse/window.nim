@@ -5,7 +5,7 @@
 
 import std/[options]
 
-import sdl2, sdl2/[image]
+import sdl2, sdl2/[image, ttf]
 
 import ./[common]
 
@@ -56,6 +56,19 @@ proc clearScreen*(ew: EclipseWindow): void =
     var wr = ew.renderer.get()
     wr.setDrawColor(255, 255, 255, 255)
     wr.clear()
+  
+proc drawPixel*(ew: EclipseWindow, x, y: int, color: DrawColor): void =
+  if ew.renderer.isSome:
+    var wr = ew.renderer.get()
+    wr.setDrawColor(color.r, color.g, color.b, color.a)
+    wr.drawPoint(x.cint, y.cint)
+
+proc drawRect*(ew: EclipseWindow, x, y, w, h: int, color: DrawColor): void =
+  if ew.renderer.isSome:
+    var wr = ew.renderer.get()
+    wr.setDrawColor(color.r, color.g, color.b, color.a)
+    var rec = rect(x.cint, y.cint, w.cint, h.cint)
+    wr.drawRect(rec)
 
 proc presentScreen*(ew: EclipseWindow): void =
   if ew.renderer.isSome:
