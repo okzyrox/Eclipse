@@ -14,7 +14,9 @@ var window = newEclipseWindow("Eclipse - Component test", 800, 600, false, @[])
 
 var objBase = newObject("test")
 objBase.addAttribute("color", drawcolor(255, 255, 255, 255))
+objBase.addAttribute("color_state", 0)
 
+# arrow keys movement
 proc movementScript(obj: var GameObjectInstance, cmp: Component) =
   if game.keyIsHeld(Key_Up):
     obj.position.y -= 0.1
@@ -28,26 +30,73 @@ proc movementScript(obj: var GameObjectInstance, cmp: Component) =
   if game.keyIsHeld(Key_Right):
     obj.position.x += 0.1
 
+# scroll through colors in a rainbow
+let cycleSpeed: uint8 = 1
 proc colorScript(obj: var GameObjectInstance, cmp: Component) =
   randomize()
-  let r = rand(255).int
-  let g = rand(255).int
-  let b = rand(255).int
-  let a = rand(255).int
+  let oldColor = obj.getAttributeValue("color", DrawColor)
+  var r = oldColor.r
+  var g = oldColor.g
+  var b = oldColor.b
+
+  var colorState = obj.getAttributeValue("color_state", int)
+  
+  case colorState
+  of 0: 
+    g += cycleSpeed
+    if g >= 255:
+      g = 255
+      colorState = 1
+  of 1: 
+    r -= cycleSpeed
+    if r <= 0:
+      r = 0
+      colorState = 2
+  of 2:
+    b += cycleSpeed
+    if b >= 255:
+      b = 255
+      colorState = 3
+  of 3: 
+    g -= cycleSpeed
+    if g <= 0:
+      g = 0
+      colorState = 4
+  of 4:
+    r += cycleSpeed
+    if r >= 255:
+      r = 255
+      colorState = 5
+  of 5: 
+    b -= cycleSpeed
+    if b <= 0:
+      b = 0
+      colorState = 0
+  else:
+    r = 255
+    g = 0
+    b = 0
+    colorState = 0
+  
+  r = max(0.uint8, min(r, 255))
+  g = max(0.uint8, min(g, 255)) 
+  b = max(0.uint8, min(b, 255))
+  
   let newColor = drawcolor(
-    r,
-    g,
-    b,
-    a
+    r.uint8,
+    g.uint8,
+    b.uint8,
+    255
   )
   discard obj.setAttribute("color", newColor)
+  discard obj.setAttribute("color_state", colorState)
 
   if game.keyIsReleased(Key_L):
     echo obj
     echo obj.components
     echo "position: ", obj.position
     let color = obj.getAttributeValue("color", DrawColor)
-    echo "color: ", color.r, ", ", color.g, ", ", color.b, ", ", color.a
+    echo color
 
 objBase.addComponent(movementScript)
 objBase.addComponent(colorScript)

@@ -13,6 +13,12 @@ import ./[window, attribute, common]
 proc drawcolor*(r: int, g: int, b: int, a: int): DrawColor =
   DrawColor(r: r.uint8, g: g.uint8, b: b.uint8, a: a.uint8)
 
+proc drawcolor*(r: int, g: int, b: int): DrawColor =
+  DrawColor(r: r.uint8, g: g.uint8, b: b.uint8, a: 255.uint8)
+
+proc drawcolor*(r: uint8, g: uint8, b: uint8, a: uint8): DrawColor =
+  DrawColor(r: r, g: g, b: b, a: a)
+
 proc loadTexture*(ew: EclipseWindow, path: string): EclipseTexture =
   if ew.renderer.isSome:
     var wr = ew.renderer.get()
@@ -29,6 +35,13 @@ proc loadTexture*(ew: EclipseWindow, path: string): EclipseTexture =
   else:
     logEclipse "Renderer is not initialized"
     quit(1)
+  
+proc `$`*(dc: DrawColor): string =
+  result = "<DrawColor r=" & $dc.r.uint8 & ", g=" & $dc.g.uint8 & ", b=" & $dc.b.uint8 & ", a=" & $dc.a.uint8 & ">"
+proc `$`*(v: Vec2): string =
+  result = "<Vec2 x=" & $v.x & ", y=" & $v.y & ">"
+proc `$`*(v: Vec3): string =
+  result = "<Vec3 x=" & $v.x & ", y=" & $v.y & ", z=" & $v.z & ">"
 
 proc `+`*(a, b: Vec2): Vec2 = Vec2(x: a.x + b.x, y: a.y + b.y)
 proc `+`*(a: Vec2, b: float): Vec2 = Vec2(x: a.x + b, y: a.y + b)

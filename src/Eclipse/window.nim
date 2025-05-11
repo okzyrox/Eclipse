@@ -63,12 +63,15 @@ proc drawPixel*(ew: EclipseWindow, x, y: int, color: DrawColor): void =
     wr.setDrawColor(color.r, color.g, color.b, color.a)
     wr.drawPoint(x.cint, y.cint)
 
-proc drawRect*(ew: EclipseWindow, x, y, w, h: int, color: DrawColor): void =
+proc drawRect*(ew: EclipseWindow, x, y, w, h: int, color: DrawColor, fill: bool = true): void =
   if ew.renderer.isSome:
     var wr = ew.renderer.get()
     wr.setDrawColor(color.r, color.g, color.b, color.a)
     var rec = rect(x.cint, y.cint, w.cint, h.cint)
-    wr.drawRect(rec)
+    if fill:
+      wr.fillRect(rec)
+    else:
+      wr.drawRect(rec)
 
 proc presentScreen*(ew: EclipseWindow): void =
   if ew.renderer.isSome:
