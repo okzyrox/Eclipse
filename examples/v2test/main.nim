@@ -10,7 +10,7 @@ var game = newGame() # the game and window are seperated
 game.add(newScene("main")) # initialise a blank scene
 
 # Init window
-var window = newEclipseWindow("V2 Window test", 800, 600, false, @[])
+var window = newEclipseWindow("Eclipse - example test", 800, 600, false, @[])
 
 # connect to close event
 game.onStop.connect("close1", (

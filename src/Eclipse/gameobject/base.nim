@@ -37,9 +37,8 @@ type
 
     # events
 
-    onCreate*: GameEvent = GameEvent()
-    onDestroy*: GameEvent = GameEvent()
-    onUpdate*: GameEvent = GameEvent()
+    onDestroy*: GameEvent = newEvent()
+    onUpdate*: GameEvent = newEvent()
 
 proc `$`*(obj: GameObject): string =
   result = "<GameObject " & obj.name & " (" & $obj.components.len & " components)>"

@@ -1,6 +1,6 @@
-# V2 testing
+# V2 - component testing
 
-import std/[options, random]
+import std/[random]
 
 import ../../src/Eclipse
 
@@ -10,13 +10,7 @@ var game = newGame() # the game and window are seperated
 game.add(newScene("main")) # initialise a blank scene
 
 # Init window
-var window = newEclipseWindow("V2 Window test", 800, 600, false, @[])
-
-# connect to close event
-game.onStop.connect("close1", (
-  proc(ge: GameEvent) = 
-    echo "I listen to when the Window is about to close; its closing right now!!"
-))
+var window = newEclipseWindow("Eclipse - Component test", 800, 600, false, @[])
 
 var objBase = newObject("test")
 objBase.addAttribute("color", drawcolor(255, 255, 255, 255))

@@ -6,8 +6,11 @@
 import std/[tables]
 
 type
+  EventBody* = ref object of RootObj
+
   GameEvent* = ref object of RootObj
     connections*: Table[string, EventConnection] # todo: remove id system?, kinda useless over just a seq
+    body*: EventBody
 
   EventConnection* = ref object of RootObj
     canFire*: bool
@@ -81,21 +84,35 @@ proc once*[T](event: GameEvent, id: string, procedure: proc(ge: GameEvent): T) =
       procedure: procedure)
   event.connect(id, connection)
 
-proc fireAll*(event: GameEvent) =
-  for id, connection in event.connections:
-    if connection.canFire:
-      connection.procedure(event)
-      if connection.once:
-        connection.canFire = false # requires manual cleanp
-
-
-proc fire*(event: GameEvent, id: string) =
-  assert not event.connections.hasKey(id),
-      "Connection with that id already exists (id: " & id & ")"
+proc fire*(event: GameEvent, id: string, body: EventBody = nil) =
+  assert event.connections.hasKey(id),
+      "Connection with that id doesn't exist (id: " & id & ")"
+  
+  let previousBody = event.body
+  if body != nil:
+    event.body = body
+  
   var connection = event.connections[id]
   connection.procedure(event)
   if connection.once:
     event.connections[id] = nil
+  
+  # restore
+  event.body = previousBody
+
+proc fireAll*(event: GameEvent, body: EventBody = nil) =
+  let previousbody = event.body
+  if body != nil:
+    event.body = body
+  
+  for id, connection in event.connections:
+    if connection.canFire:
+      connection.procedure(event)
+      if connection.once:
+        connection.canFire = false # requires manual cleanup
+
+  # restore
+  event.body = previousbody
 
 proc newEvent*(): GameEvent =
-  GameEvent()
+  GameEvent(body: nil)
