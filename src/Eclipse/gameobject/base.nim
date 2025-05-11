@@ -16,7 +16,7 @@ type
     name*: string
     components*: seq[Component]
     attributes*: seq[ObjectAttribute]
-  ComponentProc* = proc(obj: GameObjectInstance, cmp: Component)
+  ComponentProc* = proc(obj: var GameObjectInstance, cmp: Component)
   Component* = object
     enabled*: bool
     script*: ComponentProc
@@ -47,6 +47,9 @@ proc `$`*(obj: GameObject): string =
 proc `$`*(obj: GameObjectInstance): string =
   result = "<GameObjectInstance " & obj.uid & " (" & $obj.components.len & " components)>"
 
+proc `$`*(obj: Component): string =
+  result = "<Component " & "(enabled=" & $obj.enabled & ")>"
+
 proc newUID*(): string =
   randomize()
   let uid = rand(0..ObjectCap)
@@ -58,6 +61,13 @@ proc newObject*(name: string): GameObject =
 proc add*(obj: var GameObject, cmp: var Component) =
   obj.components.add(cmp)
   cmp.enabled = true
+
+proc add*(obj: var GameObject, cmpProc: ComponentProc) =
+  var cmp = Component(
+    enabled: true,
+    script: cmpProc
+  )
+  obj.components.add(cmp)
 
 proc createObject*(gameObject: GameObject, parent: Option[GameObjectInstance]): GameObjectInstance =
   result = GameObjectInstance(
@@ -82,11 +92,11 @@ proc createObject*(gameObject: GameObject, parent: Option[GameObjectInstance]): 
 proc createObject*(gameObject: GameObject): GameObjectInstance =
   result = createObject(gameObject, none(GameObjectInstance))
 
-proc update*(obj: GameObjectInstance, cmp: Component) = 
+proc update*(obj: var GameObjectInstance, cmp: Component) = 
   if cmp.enabled:
     cmp.script(obj, cmp)
 
-proc update*(obj: GameObjectInstance) =
+proc update*(obj: var GameObjectInstance) =
   for cmp in obj.components:
     if cmp.enabled:
       update(obj, cmp)

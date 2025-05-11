@@ -33,6 +33,8 @@ proc remove*(scene: var Scene, entity: GameObjectInstance) =
   entity.enabled = false
 
 proc update*(scene: var Scene) =
-  for obj in scene.objects:
+  for i in 0 ..< scene.objects.len:
+    var obj = scene.objects[i]
     if obj.enabled:
       obj.update()
+      scene.objects[i] = obj # replicate 
