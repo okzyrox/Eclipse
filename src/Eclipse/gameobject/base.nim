@@ -50,6 +50,16 @@ proc `$`*(obj: GameObjectInstance): string =
 proc `$`*(obj: Component): string =
   result = "<Component " & "(enabled=" & $obj.enabled & ")>"
 
+proc `$`*(obj: seq[Component]): string =
+  result = "<ComponentList " & "(total=" & $obj.len & ")>"
+  for i in 0 ..< obj.len:
+    result.add("\n  ")
+    result.add($obj[i])
+  
+  result.add("\n")
+  result.add("</ComponentList>")
+    
+
 proc newUID*(): string =
   randomize()
   let uid = rand(0..ObjectCap)
@@ -58,16 +68,16 @@ proc newUID*(): string =
 proc newObject*(name: string): GameObject =
   result = GameObject(name: name, components: @[])
 
-proc add*(obj: var GameObject, cmp: var Component) =
+proc addComponent*(obj: var GameObject, cmp: var Component) =
   obj.components.add(cmp)
   cmp.enabled = true
 
-proc add*(obj: var GameObject, cmpProc: ComponentProc) =
+proc addComponent*(obj: var GameObject, cmpProc: ComponentProc) =
   var cmp = Component(
     enabled: true,
     script: cmpProc
   )
-  obj.components.add(cmp)
+  obj.addComponent(cmp)
 
 proc createObject*(gameObject: GameObject, parent: Option[GameObjectInstance]): GameObjectInstance =
   result = GameObjectInstance(
@@ -86,8 +96,6 @@ proc createObject*(gameObject: GameObject, parent: Option[GameObjectInstance]): 
     parent.get().children.add(result)
   else:
     result.parent = none(GameObjectInstance)
-  for cmp in gameObject.components:
-    result.components.add(cmp)
 
 proc createObject*(gameObject: GameObject): GameObjectInstance =
   result = createObject(gameObject, none(GameObjectInstance))
@@ -129,6 +137,20 @@ proc getAttribute*(obj: GameObjectInstance, name: string): Option[ObjectAttribut
     if attr.name == name:
       return some(attr)
   return none(ObjectAttribute)
+
+proc getAttributeValue*[T: AttributeGenericTypes](obj: GameObject, name: string, kind: typedesc[T]): T =
+  for i in 0 ..< obj.attributes.len:
+    if obj.attributes[i].name == name:
+      return obj.attributes[i].getAttributeValue(T)
+  logEclipse "Attribute not found: ", name
+  return default(T)
+
+proc getAttributeValue*[T: AttributeGenericTypes](obj: GameObjectInstance, name: string, kind: typedesc[T]): T =
+  for i in 0 ..< obj.attributes.len:
+    if obj.attributes[i].name == name:
+      return obj.attributes[i].getAttributeValue(T)
+  logEclipse "Attribute not found: ", name
+  return default(T)
 
 proc setAttribute*[T: AttributeGenericTypes](obj: var GameObject, name: string, value: T): bool =
   for i in 0 ..< obj.attributes.len:

@@ -1,6 +1,6 @@
 # V2 testing
 
-import std/[options]
+import std/[options, random]
 
 import ../../src/Eclipse
 
@@ -19,7 +19,7 @@ game.onStop.connect("close1", (
 ))
 
 var objBase = newObject("test")
-objBase.addAttribute("position", Vec2(x: 0, y: 0))
+objBase.addAttribute("color", drawcolor(255, 255, 255, 255))
 
 proc movementScript(obj: var GameObjectInstance, cmp: Component) =
   if game.keyIsHeld(Key_Up):
@@ -34,21 +34,38 @@ proc movementScript(obj: var GameObjectInstance, cmp: Component) =
   if game.keyIsHeld(Key_Right):
     obj.position.x += 0.1
 
+proc colorScript(obj: var GameObjectInstance, cmp: Component) =
+  randomize()
+  let r = rand(255).int
+  let g = rand(255).int
+  let b = rand(255).int
+  let a = rand(255).int
+  let newColor = drawcolor(
+    r,
+    g,
+    b,
+    a
+  )
+  discard obj.setAttribute("color", newColor)
+
   if game.keyIsReleased(Key_L):
     echo obj
+    echo obj.components
     echo "position: ", obj.position
+    let color = obj.getAttributeValue("color", DrawColor)
+    echo "color: ", color.r, ", ", color.g, ", ", color.b, ", ", color.a
 
-objBase.add(movementScript)
+objBase.addComponent(movementScript)
+objBase.addComponent(colorScript)
 
 var objInstance = objBase.createObject()
-var objInstance2 = objBase.createObject()
 
 while game.running:
   # updates
   game.update() # update the game (game objects, components, etc)
   game.updateInputs() # update inputs (keyboard and mouse)
-  objInstance.update()
-  objInstance2.update() # or add them to the scene, and do scene.update()
+
+  objInstance.update() # or add them to the scene, and do scene.update()
 
   if game.keyIsReleased(Key_Escape):
     game.stop() # close the game using the built in stop func
@@ -59,20 +76,13 @@ while game.running:
   # start drawing here
   window.clearScreen()
   window.draw(game) # draw the game (draws the scene: game objects, ui, etc)
+  let color = objInstance.getAttributeValue("color", DrawColor)
   window.drawRect(
     objInstance.position.x.int,
     objInstance.position.y.int,
     32,
     32,
-    drawcolor(255, 0, 0, 255)
-  )
-
-  window.drawRect(
-    objInstance2.position.x.int,
-    objInstance2.position.y.int,
-    32,
-    32,
-    drawcolor(0, 255, 0, 255)
+    color
   )
   window.presentScreen() # present the drawed stuff onto the window
   # end drawing here

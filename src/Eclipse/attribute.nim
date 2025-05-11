@@ -15,6 +15,7 @@ type
     oatBool,
     oatVec2,
     oatVec3
+    oatDrawColor
 
   ObjectAttribute* = object
     name*: string
@@ -31,9 +32,11 @@ type
         vec2Value*: Vec2
       of oatVec3:
         vec3Value*: Vec3
+      of oatDrawColor:
+        drawColorValue*: DrawColor
 
 # so i dont have to type it over and over and over and over
-type AttributeGenericTypes* = string | int | float | bool | Vec2 | Vec3
+type AttributeGenericTypes* = string | int | float | bool | Vec2 | Vec3 | DrawColor
 
 proc newAttribute*[T: AttributeGenericTypes](name: string, value: T): ObjectAttribute =
   var kind: ObjectAttributeType
@@ -50,6 +53,8 @@ proc newAttribute*[T: AttributeGenericTypes](name: string, value: T): ObjectAttr
     kind = oatVec2
   elif T is Vec3:
     kind = oatVec3
+  elif T is DrawColor:
+    kind = oatDrawColor
   else:
     {.error: "Unsupported type for ObjectAttribute".}
 
@@ -67,6 +72,8 @@ proc newAttribute*[T: AttributeGenericTypes](name: string, value: T): ObjectAttr
     result.vec2Value = value
   elif T is Vec3:
     result.vec3Value = value
+  elif T is DrawColor:
+    result.drawColorValue = value
 
 
 proc getAttributeValue*(attr: ObjectAttribute, _: typedesc[string]): string =
@@ -99,6 +106,11 @@ proc getAttributeValue*(attr: ObjectAttribute, _: typedesc[Vec3]): Vec3 =
     raise newException(ValueError, "Expected Vec3")
   result = attr.vec3Value
 
+proc getAttributeValue*(attr: ObjectAttribute, _: typedesc[DrawColor]): DrawColor =
+  if attr.kind != oatDrawColor:
+    raise newException(ValueError, "Expected DrawColor")
+  result = attr.drawColorValue
+
 proc setAttributeValue*(attr: var ObjectAttribute, val: string) =
   if attr.kind != oatString:
     raise newException(ValueError, "Expected string")
@@ -129,6 +141,11 @@ proc setAttributeValue*(attr: var ObjectAttribute, val: Vec3) =
     raise newException(ValueError, "Expected Vec3")
   attr.vec3Value = val
 
+proc setAttributeValue*(attr: var ObjectAttribute, val: DrawColor) =
+  if attr.kind != oatDrawColor:
+    raise newException(ValueError, "Expected DrawColor")
+  attr.drawColorValue = val
+
 
 proc `$`*(attr: ObjectAttribute): string =
   result = "<ObjectAttribute: " & attr.name & " = "
@@ -139,4 +156,5 @@ proc `$`*(attr: ObjectAttribute): string =
     of oatBool:   result &= $attr.boolValue
     of oatVec2:   result &= $attr.vec2Value
     of oatVec3:   result &= $attr.vec3Value
+    of oatDrawColor: result &= $attr.drawColorValue
   result &= ">"
