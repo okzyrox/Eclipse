@@ -10,7 +10,7 @@ var game = newGame() # the game and window are seperated
 game.add(newScene("main")) # initialise a blank scene
 
 # Init window
-var window = newEclipseWindow("Eclipse - example test", 800, 600, false, @[])
+var window = newEclipseWindow("Eclipse - example test", 800, 600, false)
 
 # connect to close event
 game.onStop.connect("close1", (
@@ -24,6 +24,7 @@ var objInstance = objBase.createObject()
 var objInstance2 = objBase.createObject()
 
 while game.running:
+  game.beginFrame()
   # updates
   game.update() # update the game (game objects, components, etc)
   game.updateInputs() # update inputs (keyboard and mouse)
@@ -120,3 +121,4 @@ while game.running:
   )
   window.presentScreen() # present the drawed stuff onto the window
   # end drawing here
+  game.endFrame()

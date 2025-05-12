@@ -8,7 +8,7 @@ import std/[options]
 import sdl2
 import sdl2/[image]
 
-import ./[window, attribute, common]
+import ./[window, common]
 
 proc drawcolor*(r: int, g: int, b: int, a: int): DrawColor =
   DrawColor(r: r.uint8, g: g.uint8, b: b.uint8, a: a.uint8)
@@ -32,6 +32,7 @@ proc loadTexture*(ew: EclipseWindow, path: string): EclipseTexture =
       height: 0,
       path: path,
     )
+    result = eclTexture
   else:
     logEclipse "Renderer is not initialized"
     quit(1)

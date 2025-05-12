@@ -8,7 +8,7 @@ import Eclipse/[
   window,
   scene,
   inputs,
-  #ui,
+  font,
   events,
   common,
   attribute,
@@ -31,6 +31,6 @@ when EclipseDebugging:
 
 import sdl2
 
-export game, window, scene, inputs, events, common, attribute, utils, sdl2
+export game, window, scene, inputs, font, events, common, attribute, utils, sdl2
 export base, drawable
 # ui,
