@@ -19,16 +19,16 @@ objBase.addAttribute("color_state", 0)
 # arrow keys movement
 proc movementScript(obj: var GameObjectInstance, cmp: Component) =
   if game.keyIsHeld(Key_Up):
-    obj.position.y -= 0.1
+    obj.position.y -= 10
 
   if game.keyIsHeld(Key_Down):
-    obj.position.y += 0.1
+    obj.position.y += 10
 
   if game.keyIsHeld(Key_Left):
-    obj.position.x -= 0.1
+    obj.position.x -= 10
 
   if game.keyIsHeld(Key_Right):
-    obj.position.x += 0.1
+    obj.position.x += 10
 
 # scroll through colors in a rainbow
 let cycleSpeed: uint8 = 1

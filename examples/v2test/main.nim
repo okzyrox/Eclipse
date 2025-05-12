@@ -54,49 +54,44 @@ while game.running:
     # depends on the use case, sometimes we may want to get the attribute, but dont want the value
     # maybe `GameObjectInstance.getAttribute("position")` and `GameObjectInstance.getAttributeValue("position")`?
 
-    let newPos = oldPos + Vec2(x: 0, y: -0.1)
+    let newPos = oldPos + Vec2(x: 0, y: -15)
     discard objInstance.setAttribute("position", newPos)
 
   if game.keyIsHeld(Key_Down):
     let oldPos = objInstance.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: 0, y: 0.1)
-    discard objInstance.setAttribute("position", newPos)
-
-  if game.keyIsHeld(Key_Up):
-    let oldPos = objInstance.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: 0, y: -0.1)
+    let newPos = oldPos + Vec2(x: 0, y: 15)
     discard objInstance.setAttribute("position", newPos)
 
   if game.keyIsHeld(Key_Left):
     let oldPos = objInstance.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: -0.1, y: 0)
+    let newPos = oldPos + Vec2(x: -15, y: 0)
     discard objInstance.setAttribute("position", newPos)
 
   if game.keyIsHeld(Key_Right):
     let oldPos = objInstance.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: 0.1, y: 0)
+    let newPos = oldPos + Vec2(x: 15, y: 0)
     discard objInstance.setAttribute("position", newPos)
 
   # seperate instances
 
   if game.keyIsHeld(Key_W):
     let oldPos = objInstance2.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: 0, y: -0.1)
+    let newPos = oldPos + Vec2(x: 0, y: -15)
     discard objInstance2.setAttribute("position", newPos)
 
   if game.keyIsHeld(Key_S):
     let oldPos = objInstance2.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: 0, y: 0.1)
+    let newPos = oldPos + Vec2(x: 0, y: 15)
     discard objInstance2.setAttribute("position", newPos)
 
   if game.keyIsHeld(Key_A):
     let oldPos = objInstance2.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: -0.1, y: 0)
+    let newPos = oldPos + Vec2(x: -15, y: 0)
     discard objInstance2.setAttribute("position", newPos)
 
   if game.keyIsHeld(Key_D):
     let oldPos = objInstance2.getAttribute("position").get().getAttributeValue(Vec2)
-    let newPos = oldPos + Vec2(x: 0.1, y: 0)
+    let newPos = oldPos + Vec2(x: 15, y: 0)
     discard objInstance2.setAttribute("position", newPos)
     
   
