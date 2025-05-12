@@ -7,12 +7,8 @@
 
 import sdl2
 
-import ./[common, window, scene, inputs, events]
+import ./[common, window, scene, font, inputs, events]
 import gameobject/[base]
-
-type GameData* = object
-  id: string
-  value: (int, float, string)
 
 type EclipseGame = object
   running*: bool #
@@ -21,16 +17,23 @@ type EclipseGame = object
   currentScene*: Scene
   inputManager*: InputManager
   fontManager*: FontManager
-
-  deltaTimeCount: uint64
-  deltaTimeCountPrev: uint64
-  deltaTime*: float32
-  #data: seq[GameData]
   evt: Event
-  # game events
 
   onStart*: GameEvent = newEvent()
   onStop*: GameEvent = newEvent()
+
+  # delta / framerate
+  deltaTimeCount: uint64
+  deltaTimeCountPrev: uint64
+
+  frameDelay*: uint32
+  fpsUpdateTime: uint32
+  frameStartTime: uint32
+  targetFPS*: int
+  frameCount: int
+
+  deltaTime*: float32
+  currentFPS*: float
 
 type Game* = ref EclipseGame
 
@@ -43,21 +46,31 @@ proc newGame*(): Game =
   # if not ttfInit():
   #     echo "Failed to initialize SDL2-TTF"
   #     ttfQuit()
-
+  let fpsCap = 60
   result = Game(
       running: true,
-      deltaTimeCount: getPerformanceCounter()
+      deltaTimeCount: getPerformanceCounter(),
+      inputManager: newInputManager(),
+      fontManager: newFontManager(),
+      targetFPS: fpsCap,
+      frameDelay: uint32(1000 div fpsCap),
+      currentFPS: 0.0,
+      frameCount: 0,
+      fpsUpdateTime: getTicks()
   )
   result.onStart.fireAll()
 
 proc getDt*(game: Game): float32 = game.deltaTime
+proc getFPS*(game: Game): float = game.currentFPS
+proc getFrameCount*(game: Game): int = game.frameCount
+
+proc setTargetFPS*(game: var Game, targetFPS: int) =
+  game.targetFPS = max(1, targetFPS) # lim
+  game.frameDelay = uint32(1000 div game.targetFPS)
 
 proc add*(game: var Game, scene: Scene) =
   game.scenes.add(scene)
   game.currentScene = scene
-
-# shorthand for adding an tntity to the current scene
-# kinda weird but who cares
 
 proc switchScene*(game: var Game, scene: Scene) =
   if game.currentScene == scene:
@@ -80,15 +93,30 @@ proc update*(game: var Game) =
 
   game.deltaTime = (game.deltaTimeCount - previousCounter).float / getPerformanceFrequency().float
   game.currentScene.update()
+  
+  # fps
+  inc game.frameCount
+  let currentTime = getTicks()
+  let timeElapsed = currentTime - game.fpsUpdateTime
+  
+  if timeElapsed >= 1000:
+    game.currentFPS = game.frameCount.float * 1000.0 / timeElapsed.float
+    game.frameCount = 0
+    game.fpsUpdateTime = currentTime
 
 proc draw*(ew: EclipseWindow, obj: GameObjectInstance) =
   discard
-  # renderer.get_sdl2_renderer().setDrawColor(entity.color.r, entity.color.g, entity.color.b, entity.color.a)
-  # var r = rect(
-  #     cint(entity.position.x), cint(entity.position.y),
-  #     cint(2 * entity.scale.x), cint(2 * entity.scale.y)
-  # )
-  # renderer.get_sdl2_renderer().fillRect(r)
+
+proc beginFrame*(game: var Game) =
+  game.frameStartTime = getTicks()
+
+proc endFrame*(game: var Game) =
+  let frameTime = getTicks() - game.frameStartTime
+  
+  # delay if faster than target frametime
+  if game.frameDelay > frameTime:
+    let delayTime = game.frameDelay - frameTime
+    delay(delayTime)
 
 proc draw*(ew: EclipseWindow, scene: var Scene) =
   for obj in scene.objects:
@@ -145,14 +173,19 @@ proc draw*(ew: EclipseWindow, game: var Game) =
 # proc draw_ui*(renderer: WindowRenderer, game: var Game) =
 #     draw_ui(renderer, game.currentScene)
 
-# ## Fonts
+## Fonts
 
+proc loadFont*(game: var Game, id: string, path: string, size: int = 16): EclipseFont =
+  result = game.fontManager.load(id, path, size)
 
-# proc addFont*(game: var Game, id: string, path: string): bool =
-#     return game.fontManager.addFont(id, path)
+proc getFont*(game: Game, id: string): EclipseFont = # raises
+  result = game.fontManager.get(id)
 
-# proc getFont*(game: var Game, id: string): FontPtr =
-#     return game.fontManager.getFont(id)
+proc setDefaultFont*(game: var Game, id: string) =
+  game.fontManager.setDefaultFont(id)
+
+proc getDefaultFont*(game: Game): EclipseFont = # raises
+  result = game.fontManager.getDefaultFont()
 
 proc stop*(game: var Game) =
   game.onStop.fireAll()

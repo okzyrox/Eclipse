@@ -6,8 +6,6 @@
 ## Scene holds a collection of objects and other things that can be rendered
 ##
 
-import sdl2
-
 import gameobject/[base]
 
 type Scene* = object

@@ -3,8 +3,6 @@
 
 ## Attributes (for gameobjects)
 
-import std/[tables, os, logging]
-
 import ./[common]
 
 type

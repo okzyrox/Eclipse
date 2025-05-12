@@ -10,7 +10,7 @@ var game = newGame() # the game and window are seperated
 game.add(newScene("main")) # initialise a blank scene
 
 # Init window
-var window = newEclipseWindow("Eclipse - Component test", 800, 600, false, @[])
+var window = newEclipseWindow("Eclipse - Component test", 800, 600, false)
 
 var objBase = newObject("test")
 objBase.addAttribute("color", drawcolor(255, 255, 255, 255))
@@ -104,6 +104,7 @@ objBase.addComponent(colorScript)
 var objInstance = objBase.createObject()
 
 while game.running:
+  game.beginFrame()
   # updates
   game.update() # update the game (game objects, components, etc)
   game.updateInputs() # update inputs (keyboard and mouse)
@@ -129,3 +130,4 @@ while game.running:
   )
   window.presentScreen() # present the drawed stuff onto the window
   # end drawing here
+  game.endFrame()

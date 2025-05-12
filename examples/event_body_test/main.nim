@@ -10,7 +10,7 @@ var game = newGame() # the game and window are seperated
 game.add(newScene("main")) # initialise a blank scene
 
 # Init window
-var window = newEclipseWindow("Eclipse - event body test", 800, 600, false, @[])
+var window = newEclipseWindow("Eclipse - event body test", 800, 600, false)
 
 type 
   EvtBody = ref object of EventBody
@@ -26,6 +26,7 @@ evt.connect("test", (
 ))
 
 while game.running:
+  game.beginFrame()
   # updates
   game.update()
   game.updateInputs()
@@ -41,3 +42,4 @@ while game.running:
   window.draw(game)
   window.presentScreen()
   # end drawing here
+  game.endFrame()

@@ -3,10 +3,7 @@
 
 ## GameObject > SpriteObject
 
-import std/[random]
-
 import sdl2
-import sdl2/[image]
 
 import ./[base] # base GameObject
 import ../[common, utils]

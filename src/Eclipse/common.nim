@@ -7,10 +7,9 @@
 import std/[tables, os, logging]
 
 import sdl2
-import sdl2/ttf
 
 # Eclipse
-const EclipseDebugging* = defined(EclipseDebug)
+const EclipseDebugging* = true or defined(EclipseDebug)
 
 # sdl 
 
@@ -47,41 +46,6 @@ type EclipseTexture* = object
 
 # logger
 
-proc crush(args: varargs[string]): string =
-  result = ""
-  for arg in args:
-    result.add(arg)
-
 proc logEclipse*(msg: varargs[string]): void =
   if EclipseDebugging:
     log(lvlDebug, msg)
-  # else:
-  #   echo crush(msg)
-
-# Fonts
-
-type FontManager* = object
-  fonts*: Table[string, FontPtr]
-
-proc addFont*(fm: var FontManager, name: string, path: string,
-    size: int = 16): bool =
-  if not fileExists(path):
-    echo "File does not exist: ", path
-    return false
-  if name in fm.fonts:
-    echo "Font already exists in Game: ", name
-    return false
-
-  echo "Loading font: ", path
-  var font = ttf.openFont(path.cstring, size.cint)
-
-  if font.isNil:
-    echo "Could not load font: ", path
-    return false
-  else:
-    echo "Loaded font: ", path
-    fm.fonts[name] = font
-    return true
-
-proc getFont*(fm: FontManager, name: string): FontPtr =
-  fm.fonts[name]
