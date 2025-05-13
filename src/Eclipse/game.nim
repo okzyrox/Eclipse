@@ -10,32 +10,38 @@ import sdl2
 import ./[common, window, scene, font, inputs, events]
 import gameobject/[base]
 
-type EclipseGame = object
-  running*: bool
+type 
+  GameProc = proc(window: EclipseWindow, game: var Game)
+  EclipseGame = object
+    running*: bool
 
-  scenes: seq[Scene]
-  currentScene*: Scene
-  inputManager*: InputManager
-  fontManager*: FontManager
-  evt: Event
+    scenes: seq[Scene]
+    currentScene*: Scene
+    inputManager*: InputManager
+    fontManager*: FontManager
+    evt: Event
 
-  onStart*: GameEvent = newEvent()
-  onStop*: GameEvent = newEvent()
+    onStart*: GameEvent = newEvent()
+    onStop*: GameEvent = newEvent()
 
-  # delta / framerate
-  deltaTimeCount: uint64
-  deltaTimeCountPrev: uint64
+    # delta / framerate
+    deltaTimeCount: uint64
+    deltaTimeCountPrev: uint64
 
-  frameDelay*: uint32
-  fpsUpdateTime: uint32
-  frameStartTime: uint32
-  targetFPS*: int
-  frameCount: int
+    frameDelay*: uint32
+    fpsUpdateTime: uint32
+    frameStartTime: uint32
+    targetFPS*: int
+    frameCount: int
 
-  deltaTime*: float32
-  currentFPS*: float
+    deltaTime*: float32
+    currentFPS*: float
 
-type Game* = ref EclipseGame
+    # optional procs
+    initProc*: GameProc
+    updateProc*: GameProc
+    drawProc*: GameProc
+  Game* = ref EclipseGame
 
 proc newGame*(): Game =
   discard sdl2.init(INIT_EVERYTHING) # Init everything doesnt actually include external modules
@@ -219,3 +225,35 @@ proc mouseIsHeld*(game: var Game, button: MouseButton): bool =
 
 proc mouseIsReleased*(game: var Game, button: MouseButton): bool =
   return game.inputManager.mouseIsReleased(button)
+
+
+## callback stuff
+
+proc `init=`*(game: var Game, script: GameProc) =
+  game.initProc = script
+
+proc `update=`*(game: var Game, script: GameProc) =
+  game.updateProc = script
+
+proc `draw=`*(game: var Game, script: GameProc) =
+  game.drawProc = script
+
+# run with callbacks
+proc run*(game: var Game, window: EclipseWindow) =
+  game.onStart.fireAll()
+  game.running = true
+  game.initProc(window, game)
+  while game.running:
+    game.beginFrame()
+    
+    game.updateInputs()
+    game.update()
+    game.updateProc(window, game)
+
+    window.clearScreen()
+    window.draw(game)
+    game.drawProc(window, game)
+    window.presentScreen()
+
+    game.endFrame()
+  game.stop()

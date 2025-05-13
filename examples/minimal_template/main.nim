@@ -1,3 +1,4 @@
+# Minimal template
 import ../../src/Eclipse
 
 var game: Game

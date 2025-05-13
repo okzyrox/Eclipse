@@ -1,3 +1,4 @@
+# Font stuff
 import ../../src/Eclipse
 
 # Start game
