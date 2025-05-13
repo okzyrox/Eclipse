@@ -25,9 +25,15 @@ type InputKey* = enum
 
   Key_F1, Key_F2, Key_F3, Key_F4, Key_F5
   Key_F6, Key_F7, Key_F8, Key_F9, Key_F10
+  Key_F11, Key_F12
 
   Key_Up, Key_Down, Key_Left, Key_Right, Key_Enter
   Key_Space, Key_Backspace, Key_Tab, Key_Shift, Key_Control
+  Key_Alt, Key_RightAlt, Key_RightCtrl, Key_RightShift
+
+  Key_Equals, Key_Minus, Key_Grave, Key_LeftBracket, Key_RightBracket
+  Key_Semicolon, Key_Apostrophe, Key_Comma, Key_Period, Key_Slash
+  Key_Backslash
 
   Key_Pause, Key_Escape, Key_Delete, Key_Insert, Key_Home
 
@@ -88,6 +94,19 @@ proc toKey*(sc: ScanCode): InputKey =
     of SDL_SCANCODE_F8: Key_F8
     of SDL_SCANCODE_F9: Key_F9
     of SDL_SCANCODE_F10: Key_F10
+    of SDL_SCANCODE_F11: Key_F11
+    of SDL_SCANCODE_F12: Key_F12
+    of SDL_SCANCODE_EQUALS: Key_Equals
+    of SDL_SCANCODE_MINUS: Key_Minus
+    of SDL_SCANCODE_GRAVE: Key_Grave
+    of SDL_SCANCODE_LEFTBRACKET:  Key_LeftBracket
+    of SDL_SCANCODE_RIGHTBRACKET: Key_RightBracket
+    of SDL_SCANCODE_SEMICOLON: Key_Semicolon
+    of SDL_SCANCODE_APOSTROPHE: Key_Apostrophe
+    of SDL_SCANCODE_COMMA: Key_Comma
+    of SDL_SCANCODE_PERIOD: Key_Period
+    of SDL_SCANCODE_SLASH: Key_Slash
+    of SDL_SCANCODE_BACKSLASH: Key_Backslash
     of SDL_SCANCODE_UP: Key_Up
     of SDL_SCANCODE_DOWN: Key_Down
     of SDL_SCANCODE_LEFT: Key_Left
@@ -96,8 +115,12 @@ proc toKey*(sc: ScanCode): InputKey =
     of SDL_SCANCODE_SPACE: Key_Space
     of SDL_SCANCODE_BACKSPACE: Key_Backspace
     of SDL_SCANCODE_TAB: Key_Tab
+    of SDL_SCANCODE_LALT: Key_Alt
+    of SDL_SCANCODE_RALT: Key_RightAlt
     of SDL_SCANCODE_LSHIFT: Key_Shift
+    of SDL_SCANCODE_RSHIFT: Key_RightShift
     of SDL_SCANCODE_LCTRL: Key_Control
+    of SDL_SCANCODE_RCTRL: Key_RightCtrl
     of SDL_SCANCODE_PAUSE: Key_Pause
     of SDL_SCANCODE_ESCAPE: Key_Escape
     of SDL_SCANCODE_DELETE: Key_Delete

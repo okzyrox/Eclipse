@@ -11,7 +11,7 @@ import ./[common, window, scene, font, inputs, events]
 import gameobject/[base]
 
 type EclipseGame = object
-  running*: bool #
+  running*: bool
 
   scenes: seq[Scene]
   currentScene*: Scene
@@ -36,9 +36,6 @@ type EclipseGame = object
   currentFPS*: float
 
 type Game* = ref EclipseGame
-
-proc `$`*(game: Game): string =
-  "<Game: " & "running: " & $game.running & ">"
 
 proc newGame*(): Game =
   discard sdl2.init(INIT_EVERYTHING) # Init everything doesnt actually include external modules

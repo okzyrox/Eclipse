@@ -24,8 +24,10 @@ when EclipseDebugging:
   import std/[logging, os]
   if fileExists("eclipse_debug.log"):
     removeFile("eclipse_debug.log")
-  var cl = newConsoleLogger(levelThreshold = lvlDebug)
-  var fl = newFileLogger("eclipse_debug.log", levelThreshold = lvlDebug)
+  
+  let format = "[$time] - $levelname: "
+  var cl = newConsoleLogger(levelThreshold = lvlDebug, fmtStr = format)
+  var fl = newFileLogger("eclipse_debug.log", levelThreshold = lvlDebug, fmtStr = format)
   addHandler(cl)
   addHandler(fl)
 

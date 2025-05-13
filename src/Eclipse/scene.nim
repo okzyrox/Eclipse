@@ -16,12 +16,6 @@ type Scene* = object
 proc newScene*(id: string): Scene =
   Scene(id: id, objects: @[])
 
-proc `==`*(a, b: Scene): bool = a.id == b.id
-proc `==`*(a: Scene, id: string): bool = a.id == id
-
-proc `$`*(scene: Scene): string =
-  "<Scene: " & "ID: " & scene.id & "> "
-
 proc add*(scene: var Scene, entity: GameObjectInstance) =
   scene.objects.add(entity)
   entity.enabled = true

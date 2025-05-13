@@ -6,7 +6,7 @@
 import sdl2
 
 import ./[base] # base GameObject
-import ../[common, utils]
+import ../[common]
 
 
 type

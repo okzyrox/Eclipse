@@ -41,27 +41,6 @@ type
     onDestroy*: GameEvent = newEvent()
     onUpdate*: GameEvent = newEvent()
 
-proc `$`*(obj: GameObject): string =
-  result = "<GameObject " & obj.name & " (" & $obj.components.len & " components)>"
-
-proc `$`*(obj: GameObjectInstance): string =
-  result = "<GameObjectInstance " & obj.uid & " (" & $obj.components.len & " components)>"
-
-proc `$`*(obj: Component): string =
-  let hasStartScript = if obj.startScript != nil: "true" else: "false"
-  let hasUpdateScript = if obj.updateScript != nil: "true" else: "false"
-  result = "<Component " & "(enabled=" & $obj.enabled & "," & "startScript=" & hasStartScript & "," & "updateScript=" & hasUpdateScript & ")>"
-
-proc `$`*(obj: seq[Component]): string =
-  result = "<ComponentList " & "(total=" & $obj.len & ")>"
-  for i in 0 ..< obj.len:
-    result.add("\n  ")
-    result.add($obj[i])
-  
-  result.add("\n")
-  result.add("</ComponentList>")
-    
-
 proc newUID*(): string =
   randomize()
   let uid = rand(0..ObjectCap)

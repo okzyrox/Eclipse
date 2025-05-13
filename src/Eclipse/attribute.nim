@@ -143,16 +143,3 @@ proc setAttributeValue*(attr: var ObjectAttribute, val: DrawColor) =
   if attr.kind != oatDrawColor:
     raise newException(ValueError, "Expected DrawColor")
   attr.drawColorValue = val
-
-
-proc `$`*(attr: ObjectAttribute): string =
-  result = "<ObjectAttribute: " & attr.name & " = "
-  case attr.kind:
-    of oatString: result &= $attr.stringValue
-    of oatInt:    result &= $attr.intValue
-    of oatFloat:  result &= $attr.floatValue
-    of oatBool:   result &= $attr.boolValue
-    of oatVec2:   result &= $attr.vec2Value
-    of oatVec3:   result &= $attr.vec3Value
-    of oatDrawColor: result &= $attr.drawColorValue
-  result &= ">"

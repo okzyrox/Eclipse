@@ -152,3 +152,98 @@ proc renderText*(ew: EclipseWindow, text: string, x, y: int, font: EclipseFont, 
   let destRect = rect(textX, y.cint, surface.w, surface.h)
   # Render
   discard renderer.copy(texture, nil, addr destRect)
+
+
+# window control
+
+proc getWindowTitle*(ew: EclipseWindow): string =
+  if ew.window.isNone:
+    logEclipse "Cannot get window title: window is none"
+    return ""
+  let window = ew.window.get()
+  result = $window.getTitle()
+
+proc setWindowTitle*(ew: EclipseWindow, title: string): void =
+  if ew.window.isNone:
+    logEclipse "Cannot set window title: window is none"
+    return
+  let window = ew.window.get()
+  window.setTitle(title.cstring)
+
+proc isWindowFullscreen*(ew: EclipseWindow): bool =
+  if ew.window.isNone:
+    logEclipse "Cannot get window fullscreen: window is none"
+    return false
+  let window = ew.window.get()
+  let windowFlags = window.getFlags()
+  result = (windowFlags and SDL_WINDOW_FULLSCREEN) != 0
+
+proc setWindowFullscreen*(ew: EclipseWindow, fullscreen: bool): void =
+  if ew.window.isNone:
+    logEclipse "Cannot set window fullscreen: window is none"
+    return
+  let window = ew.window.get()
+  if fullscreen:
+    let status = window.setFullscreen(SDL_WINDOW_FULLSCREEN)
+    if status != SdlSuccess:
+      logEclipse "Failed to set window to fullscreen: " & $getError()
+  else:
+    let status = window.setFullscreen(0)
+    if status != SdlSuccess:
+      logEclipse "Failed to set window to windowed: " & $getError()
+
+proc toggleWindowFullscreen*(ew: EclipseWindow): void =
+  if ew.window.isNone:
+    logEclipse "Cannot toggle window fullscreen: window is none"
+    return
+  let window = ew.window.get()
+  let isFullscreen = ew.isWindowFullscreen()
+  if isFullscreen:
+    let status = window.setFullscreen(0)
+    if status != SdlSuccess:
+      logEclipse "Failed to toggle window fullscreen: " & $getError()
+  else:
+    let status = window.setFullscreen(SDL_WINDOW_FULLSCREEN)
+    if status != SdlSuccess:
+      logEclipse "Failed to toggle window fullscreen: " & $getError()
+
+proc getWindowSize*(ew: EclipseWindow): Vec2 =
+  if ew.window.isNone:
+    logEclipse "Cannot get window size: window is none"
+    return Vec2(x: 0, y: 0)
+  let window = ew.window.get()
+  var w, h: cint
+  window.getSize(w, h)
+  result = Vec2(x: w.float, y: h.float)
+
+proc setWindowSize*(ew: EclipseWindow, width, height: int): void =
+  if ew.window.isNone:
+    logEclipse "Cannot set window size: window is none"
+    return
+  let window = ew.window.get()
+  window.setSize(width.cint, height.cint)
+
+proc getWindowPosition*(ew: EclipseWindow): Vec2 =
+  if ew.window.isNone:
+    logEclipse "Cannot get window position: window is none"
+    return Vec2(x: 0, y: 0)
+  let window = ew.window.get()
+  var x, y: cint
+  window.getPosition(x, y)
+  result = Vec2(x: x.float, y: y.float)
+
+proc setWindowPosition*(ew: EclipseWindow, x, y: int): void =
+  if ew.window.isNone:
+    logEclipse "Cannot set window position: window is none"
+    return
+  let window = ew.window.get()
+  window.setPosition(x.cint, y.cint)
+
+proc moveWindow*(ew: EclipseWindow, dx, dy: int): void =
+  if ew.window.isNone:
+    logEclipse "Cannot move window: window is none"
+    return
+  let window = ew.window.get()
+  var x, y: cint
+  window.getPosition(x, y)
+  window.setPosition(x + dx.cint, y + dy.cint)
