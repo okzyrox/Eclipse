@@ -153,12 +153,12 @@ proc updateInputs*(inputManager: var InputManager): ReturnEvents =
       of QuitEvent:
         return WindowQuit
       of KeyDown:
-        logEclipse "Key pressed: ", $evt.key.keysym.scancode.toKey()
+        # logEclipse "Key pressed: ", $evt.key.keysym.scancode.toKey()
         inputManager.keys_pressed.incl(evt.key.keysym.scancode.toKey())
         inputManager.keys_held.incl(evt.key.keysym.scancode.toKey())
         break
       of KeyUp:
-        logEclipse "Key released: ", $evt.key.keysym.scancode.toKey()
+        # logEclipse "Key released: ", $evt.key.keysym.scancode.toKey()
         inputManager.keys_just_released.incl(evt.key.keysym.scancode.toKey())
         inputManager.keys_pressed.excl(evt.key.keysym.scancode.toKey())
         inputManager.keys_held.excl(evt.key.keysym.scancode.toKey())

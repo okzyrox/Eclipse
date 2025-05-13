@@ -6,40 +6,43 @@ import ../../src/Eclipse
 
 # Start game
 
-var game = newGame() # the game and window are seperated
-game.add(newScene("main")) # initialise a blank scene
-
-# Init window
-var window = newEclipseWindow("Eclipse - event body test", 800, 600, false)
-
+var game: Game = newGame() # the game and window are seperated
 type 
   EvtBody = ref object of EventBody
     test: string
 
-let evt = newEvent()
+proc main() =
+  game = newGame()
+  game.add(newScene("main")) # initialise a blank scene
 
-evt.connect("test", (
-  proc(ge: GameEvent) = 
-    if ge.body != nil:
-      let body = EvtBody(ge.body)
-      echo fmt"Received: {body.test}"
-))
+  # Init window
+  let window = newEclipseWindow("Eclipse - event body test", 800, 600, false)
+  let evt = newEvent()
 
-while game.running:
-  game.beginFrame()
-  # updates
-  game.update()
-  game.updateInputs()
+  evt.connect("test", (
+    proc(ge: GameEvent) = 
+      if ge.body != nil:
+        let body = EvtBody(ge.body)
+        echo fmt"Received: {body.test}"
+  ))
+  while game.running:
+    game.beginFrame()
+    # updates
+    game.update()
+    game.updateInputs()
 
-  if game.keyIsReleased(Key_Escape):
-    game.stop()
+    if game.keyIsReleased(Key_Escape):
+      game.stop()
+    
+    if game.mouseIsReleased(Left):
+      evt.fire("test", EvtBody(test: "hi"))
+    
+    # start drawing here
+    window.clearScreen()
+    window.draw(game)
+    window.presentScreen()
+    # end drawing here
+    game.endFrame()
   
-  if game.mouseIsReleased(Left):
-    evt.fire("test", EvtBody(test: "hi"))
-  
-  # start drawing here
-  window.clearScreen()
-  window.draw(game)
-  window.presentScreen()
-  # end drawing here
-  game.endFrame()
+when isMainModule:
+  main()

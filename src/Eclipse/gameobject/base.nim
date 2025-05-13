@@ -19,7 +19,8 @@ type
   ComponentProc* = proc(obj: var GameObjectInstance, cmp: Component)
   Component* = object
     enabled*: bool
-    script*: ComponentProc
+    startScript*: ComponentProc
+    updateScript*: ComponentProc
   
   GameObjectInstance* = ref object of RootObj
     uid*: string
@@ -47,7 +48,9 @@ proc `$`*(obj: GameObjectInstance): string =
   result = "<GameObjectInstance " & obj.uid & " (" & $obj.components.len & " components)>"
 
 proc `$`*(obj: Component): string =
-  result = "<Component " & "(enabled=" & $obj.enabled & ")>"
+  let hasStartScript = if obj.startScript != nil: "true" else: "false"
+  let hasUpdateScript = if obj.updateScript != nil: "true" else: "false"
+  result = "<Component " & "(enabled=" & $obj.enabled & "," & "startScript=" & hasStartScript & "," & "updateScript=" & hasUpdateScript & ")>"
 
 proc `$`*(obj: seq[Component]): string =
   result = "<ComponentList " & "(total=" & $obj.len & ")>"
@@ -67,14 +70,22 @@ proc newUID*(): string =
 proc newObject*(name: string): GameObject =
   result = GameObject(name: name, components: @[])
 
+proc newComponent*(startCmpProc, updateCmpProc: ComponentProc): Component =
+  result = Component(
+    enabled: true,
+    startScript: startCmpProc,
+    updateScript: updateCmpProc
+  )
+
 proc addComponent*(obj: var GameObject, cmp: var Component) =
   obj.components.add(cmp)
   cmp.enabled = true
 
-proc addComponent*(obj: var GameObject, cmpProc: ComponentProc) =
+proc addComponent*(obj: var GameObject, startCmpProc, updateCmpProc: ComponentProc) =
   var cmp = Component(
     enabled: true,
-    script: cmpProc
+    startScript: startCmpProc,
+    updateScript: updateCmpProc
   )
   obj.addComponent(cmp)
 
@@ -98,14 +109,17 @@ proc createObject*(gameObject: GameObject, parent: Option[GameObjectInstance]): 
 
 proc createObject*(gameObject: GameObject): GameObjectInstance =
   result = createObject(gameObject, none(GameObjectInstance))
+  for cmp in gameObject.components:
+    if cmp.enabled and cmp.startScript != nil:
+      cmp.startScript(result, cmp)
 
 proc update*(obj: var GameObjectInstance, cmp: Component) = 
-  if cmp.enabled:
-    cmp.script(obj, cmp)
+  if cmp.enabled and cmp.updateScript != nil:
+    cmp.updateScript(obj, cmp)
 
 proc update*(obj: var GameObjectInstance) =
   for cmp in obj.components:
-    if cmp.enabled:
+    if cmp.enabled and cmp.updateScript != nil:
       update(obj, cmp)
 
 proc getChildren*(obj: GameObjectInstance): seq[GameObjectInstance] =

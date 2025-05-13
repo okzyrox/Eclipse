@@ -1,37 +1,43 @@
 import ../../src/Eclipse
 
 # Start game
-var game = newGame()
-game.setTargetFPS(120)
-game.add(newScene("main"))
+var game: Game
 
-discard game.loadFont("main", "sans.ttf", 16)
-game.setDefaultFont("main")
+proc main() =
+  game = newGame()
+  game.setTargetFPS(120)
+  game.add(newScene("main"))
 
-# Init window
-var window = newEclipseWindow("Eclipse - Template", 800, 600, false)
+  discard game.loadFont("main", "sans.ttf", 16)
+  game.setDefaultFont("main")
 
-var mainFont = game.getFont("main")
-mainFont.setStyle({Bold})
-let color = drawcolor(255, 0, 0, 255)
-let fpsColor = drawcolor(0, 0, 0, 255)
+  # Init window
+  let window = newEclipseWindow("Eclipse - Template", 800, 600, false)
 
-while game.running:
-  game.beginFrame()
+  var mainFont = game.getFont("main")
+  mainFont.setStyle({Bold})
+  let color = drawcolor(255, 0, 0, 255)
+  let fpsColor = drawcolor(0, 0, 0, 255)
 
-  # updates
-  game.update()
-  game.updateInputs()
+  while game.running:
+    game.beginFrame()
 
-  if game.keyIsReleased(Key_Escape):
-    game.stop()
+    # updates
+    game.update()
+    game.updateInputs()
 
-  # Render
-  window.clearScreen()
-  window.draw(game)
-  window.renderText("Test Text", 400, 50, mainFont, color, Center)
-  let fpsText = "FPS: " & $int(game.getFPS())
-  window.renderText(fpsText, 10, 10, mainFont, fpsColor)
-  window.presentScreen()
+    if game.keyIsReleased(Key_Escape):
+      game.stop()
+
+    # Render
+    window.clearScreen()
+    window.draw(game)
+    window.renderText("Test Text", 400, 50, mainFont, color, Center)
+    let fpsText = "FPS: " & $int(game.getFPS())
+    window.renderText(fpsText, 10, 10, mainFont, fpsColor)
+    window.presentScreen()
+    
+    game.endFrame()
   
-  game.endFrame()
+when isMainModule:
+  main()
