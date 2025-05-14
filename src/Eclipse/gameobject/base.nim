@@ -38,8 +38,7 @@ type
 
     # events
 
-    onDestroy*: GameEvent = newEvent()
-    onUpdate*: GameEvent = newEvent()
+    onUpdate*: GameEvent
 
 proc newUID*(): string =
   randomize()
@@ -78,7 +77,9 @@ proc createObject*(gameObject: GameObject, parent: Option[GameObjectInstance]): 
     position: Vec2(x: 0, y: 0), 
     scale: Vec2(x: 1, y: 1),
     children: @[],
-    parent: none(GameObjectInstance)
+    parent: none(GameObjectInstance),
+    # events
+    onUpdate: newEvent()
   )
   if parent.isSome:
     result.parent = parent
@@ -100,6 +101,8 @@ proc update*(obj: var GameObjectInstance) =
   for cmp in obj.components:
     if cmp.enabled and cmp.updateScript != nil:
       update(obj, cmp)
+  
+  obj.onUpdate.fireAll()
 
 proc getChildren*(obj: GameObjectInstance): seq[GameObjectInstance] =
   result = obj.children

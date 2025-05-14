@@ -8,7 +8,7 @@ import std/[options]
 import sdl2
 
 import ./[base] # base GameObject
-import ../[common, window, texture]
+import ../[common, window, texture, events]
 
 
 type
@@ -27,6 +27,8 @@ type
     rotation*: float32
     center*: Option[Vec2]
     flip*: RendererFlip
+
+    onDraw*: GameEvent
 
 proc newSpriteObject*(name: string): SpriteObject =
   result = SpriteObject(
@@ -57,7 +59,10 @@ proc createObject*(spriteObj: SpriteObject): SpriteObjectInstance =
     destRect: spriteObj.destRect,
     rotation: spriteObj.rotation,
     center: spriteObj.center,
-    flip: spriteObj.flip
+    flip: spriteObj.flip,
+    # events
+    onUpdate: newEvent(),
+    onDraw: newEvent()
   )
 
 proc setTexture*(sprite: var SpriteObject, texture: EclipseTexture) =
@@ -169,3 +174,5 @@ proc draw*(ew: EclipseWindow, sprite: SpriteObjectInstance) =
     centerPtr,
     sprite.flip
   )
+
+  sprite.onDraw.fireAll()
