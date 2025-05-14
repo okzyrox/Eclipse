@@ -6,8 +6,9 @@
 import std/[options, strutils]
 
 import sdl2
+import sdl2/[image]
 
-import ./[common, font]
+import ./[common, font, texture]
 
 type 
   EclipseWindow* = object
@@ -90,6 +91,8 @@ proc clearScreen*(ew: EclipseWindow): void =
   let wr = ew.renderer.get()
   wr.setDrawColor(255, 255, 255, 255)
   wr.clear()
+
+## drawing
   
 proc drawPixel*(ew: EclipseWindow, x, y: int, color: DrawColor): void =
   if ew.renderer.isNone:
@@ -153,6 +156,99 @@ proc renderText*(ew: EclipseWindow, text: string, x, y: int, font: EclipseFont, 
   # Render
   discard renderer.copy(texture, nil, addr destRect)
 
+### manual texture draw (not recommended; use SpriteObject draw or Scene draw)
+
+proc loadTexture*(ew: EclipseWindow, path: string): EclipseTexture =
+  if ew.renderer.isSome:
+    var wr = ew.renderer.get()
+    var texture = loadTexture(wr, path.cstring)
+    if texture == nil:
+      logEclipse "Failed to load texture"
+      quit(1)
+
+    var w, h: cint
+    if texture.queryTexture(nil, nil, addr w, addr h) != SdlSuccess:
+      logEclipse "Failed to get texture dimensions"
+      texture.destroy()
+      quit(1)
+      
+    let eclTexture = EclipseTexture(
+      texturePtr: texture,
+      width: w.int,
+      height: h.int,
+      path: path,
+      color: DrawColor(r: 255, g: 255, b: 255, a: 255)
+    )
+    result = eclTexture
+  else:
+    logEclipse "Renderer is not initialized"
+    quit(1)
+
+proc drawTexture*(ew: EclipseWindow, texture: EclipseTexture, x, y: int): void =
+  if ew.renderer.isNone:
+    logEclipse "Cannot draw texture: renderer is none"
+    return
+  
+  let wr = ew.renderer.get()
+  var destRect = rect(x.cint, y.cint, texture.width.cint, texture.height.cint)
+  
+  discard texture.texturePtr.setTextureColorMod(
+    texture.color.r, texture.color.g, texture.color.b
+  )
+  discard texture.texturePtr.setTextureAlphaMod(texture.color.a)
+  
+  discard wr.copy(texture.texturePtr, nil, addr destRect)
+
+proc drawTexture*(ew: EclipseWindow, texture: EclipseTexture, destRect: Rect): void =
+  if ew.renderer.isNone:
+    logEclipse "Cannot draw texture: renderer is none"
+    return
+  
+  let wr = ew.renderer.get()
+  
+  discard texture.texturePtr.setTextureColorMod(
+    texture.color.r, texture.color.g, texture.color.b
+  )
+  discard texture.texturePtr.setTextureAlphaMod(texture.color.a)
+  
+  discard wr.copy(texture.texturePtr, nil, addr destRect)
+
+proc drawTexture*(ew: EclipseWindow, texture: EclipseTexture, srcRect, destRect: Rect): void =
+  if ew.renderer.isNone:
+    logEclipse "Cannot draw texture: renderer is none"
+    return
+  
+  let wr = ew.renderer.get()
+  
+  discard texture.texturePtr.setTextureColorMod(
+    texture.color.r, texture.color.g, texture.color.b
+  )
+  discard texture.texturePtr.setTextureAlphaMod(texture.color.a)
+  
+  discard wr.copy(texture.texturePtr, addr srcRect, addr destRect)
+
+proc drawTexture*(ew: EclipseWindow, texture: EclipseTexture, x, y: int, angle: float32, center: Option[Vec2] = none(Vec2), flip: RendererFlip = SDL_FLIP_NONE): void =
+  if ew.renderer.isNone:
+    logEclipse "Cannot draw texture: renderer is none"
+    return
+  
+  let wr = ew.renderer.get()
+  var destRect = rect(x.cint, y.cint, texture.width.cint, texture.height.cint)
+  
+  discard texture.texturePtr.setTextureColorMod(
+    texture.color.r, texture.color.g, texture.color.b
+  )
+  discard texture.texturePtr.setTextureAlphaMod(texture.color.a)
+  
+  var centerPtr: ptr Point 
+  if center.isSome: 
+    let centerVec = center.get() 
+    let centerPnt = point(centerVec.x.cint, centerVec.y.cint)
+    centerPtr = addr centerPnt
+  else:
+    centerPtr = nil
+  
+  discard wr.copyEx(texture.texturePtr, nil, addr destRect, angle, centerPtr, flip)
 
 # window control
 

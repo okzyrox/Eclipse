@@ -3,13 +3,10 @@
 
 ## Utils for Eclipse
 
-import std/[options]
-
 import sdl2
-import sdl2/[image]
 
-import ./[game, scene, window, common, font, attribute]
-import ./gameobject/[base]
+import ./[game, scene, common, font, attribute, texture]
+import ./gameobject/[base, spriteobject]
 
 proc drawcolor*(r: int, g: int, b: int, a: int): DrawColor =
   DrawColor(r: r.uint8, g: g.uint8, b: b.uint8, a: a.uint8)
@@ -19,24 +16,6 @@ proc drawcolor*(r: int, g: int, b: int): DrawColor =
 
 proc drawcolor*(r: uint8, g: uint8, b: uint8, a: uint8): DrawColor =
   DrawColor(r: r, g: g, b: b, a: a)
-
-proc loadTexture*(ew: EclipseWindow, path: string): EclipseTexture =
-  if ew.renderer.isSome:
-    var wr = ew.renderer.get()
-    var texture = loadTexture(wr, path.cstring)
-    if texture == nil:
-      logEclipse "Failed to load texture"
-      quit(1)
-    let eclTexture = EclipseTexture(
-      texturePtr: texture,
-      width: 0,
-      height: 0,
-      path: path,
-    )
-    result = eclTexture
-  else:
-    logEclipse "Renderer is not initialized"
-    quit(1)
   
 proc `$`*(dc: DrawColor): string =
   result = "<DrawColor r=" & $dc.r.uint8 & ", g=" & $dc.g.uint8 & ", b=" & $dc.b.uint8 & ", a=" & $dc.a.uint8 & ">"
@@ -62,6 +41,8 @@ proc `$`*(fs: set[FontStyle]): string =
   result.add ">"
 proc `$`*(f: EclipseFont): string =
   result = "<EclipseFont id=\'" & f.id & "\', path=\'" & f.path & "\', size=" & $f.size & ", styles=" & $f.styles & ", outline=" & $f.outline & ">"
+proc `$`*(texture: EclipseTexture): string =
+  result = "<EclipseTexture path='" & texture.path & "' width=" & $texture.width & " height=" & $texture.height & " color=" & $texture.color & ">"
 proc `$`*(attr: ObjectAttribute): string =
   result = "<ObjectAttribute " & attr.name & "="
   case attr.kind:
@@ -77,6 +58,10 @@ proc `$`*(obj: GameObject): string =
   result = "<GameObject " & obj.name & " (" & $obj.components.len & " components)>"
 proc `$`*(obj: GameObjectInstance): string =
   result = "<GameObjectInstance " & obj.uid & " (" & $obj.components.len & " components)>"
+proc `$`*(sobj: SpriteObject): string =
+  result = "<SpriteObject " & sobj.name & " (" & $sobj.components.len & " components)>"
+proc `$`*(sobj: SpriteObjectInstance): string =
+  result = "<SpriteObjectInstance " & sobj.uid & " (" & $sobj.components.len & " components)>"
 proc `$`*(obj: Component): string =
   let hasStartScript = if obj.startScript != nil: "true" else: "false"
   let hasUpdateScript = if obj.updateScript != nil: "true" else: "false"

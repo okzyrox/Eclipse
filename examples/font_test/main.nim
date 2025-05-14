@@ -13,7 +13,7 @@ proc main() =
   game.setDefaultFont("main")
 
   # Init window
-  let window = newEclipseWindow("Eclipse - Template", 800, 600, false)
+  let window = newEclipseWindow("Eclipse - Font Test", 800, 600, false)
 
   var mainFont = game.getFont("main")
   mainFont.setStyle({Bold})
