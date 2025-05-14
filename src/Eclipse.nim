@@ -9,6 +9,7 @@ import Eclipse/[
   scene,
   inputs,
   font,
+  texture,
   events,
   common,
   attribute,
@@ -17,7 +18,7 @@ import Eclipse/[
 
 import Eclipse/gameobject/[
   base,
-  drawable
+  spriteobject
 ]
 
 when EclipseDebugging:
@@ -33,6 +34,6 @@ when EclipseDebugging:
 
 import sdl2
 
-export game, window, scene, inputs, font, events, common, attribute, utils, sdl2
-export base, drawable
+export game, window, scene, inputs, font, texture, events, common, attribute, utils, sdl2
+export base, spriteobject
 # ui,

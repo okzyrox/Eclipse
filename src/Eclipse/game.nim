@@ -5,9 +5,15 @@
 ##
 ## Game houses all the scenes, and handles the game loop
 
-import sdl2
+import std/[strformat]
 
-import ./[common, window, scene, font, inputs, events]
+import sdl2
+import sdl2/[ttf]
+import sdl2/image as sdl2img 
+# only using a alias cause `init` and `quit` are common names with other system functions
+# i know nim resolves them regardless, but its more readable like this
+
+import ./[common, window, scene, font, inputs, events, texture]
 import gameobject/[base]
 
 type 
@@ -19,6 +25,7 @@ type
     currentScene*: Scene
     inputManager*: InputManager
     fontManager*: FontManager
+    textureManager*: TextureManager
     evt: Event
 
     onStart*: GameEvent = newEvent()
@@ -46,15 +53,19 @@ type
 proc newGame*(): Game =
   discard sdl2.init(INIT_EVERYTHING) # Init everything doesnt actually include external modules
   # like ttf
-  # if not ttfInit():
-  #     echo "Failed to initialize SDL2-TTF"
-  #     ttfQuit()
+  if ttfInit() != SdlSuccess:
+      echo "Failed to initialize SDL2-TTF"
+      ttfQuit()
+  if sdl2img.init(IMG_INIT_PNG) == 0:
+    logEclipse "Failed to initialize SDL2_image"
+    sdl2img.quit()
   let fpsCap = 60
   result = Game(
       running: true,
       deltaTimeCount: getPerformanceCounter(),
       inputManager: newInputManager(),
       fontManager: newFontManager(),
+      textureManager: newTextureManager(),
       targetFPS: fpsCap,
       frameDelay: uint32(1000 div fpsCap),
       currentFPS: 0.0,
@@ -122,8 +133,7 @@ proc endFrame*(game: var Game) =
     delay(delayTime)
 
 proc draw*(ew: EclipseWindow, scene: var Scene) =
-  for obj in scene.objects:
-    draw(ew, obj)
+  scene.draw(ew)
 
 proc draw*(ew: EclipseWindow, game: var Game) =
   # draw(renderer, game.currentScene)
@@ -190,8 +200,22 @@ proc setDefaultFont*(game: var Game, id: string) =
 proc getDefaultFont*(game: Game): EclipseFont = # raises
   result = game.fontManager.getDefaultFont()
 
+
+## Textures
+
+proc loadTexture*(game: var Game, ew: EclipseWindow, path: string, id: string): EclipseTexture =
+  if game.textureManager.hasTexture(id):
+    logEclipse "Texture already loaded: ", id
+    return game.textureManager.getTexture(id)
+  
+  var texture = ew.loadTexture(path) # raises
+  game.textureManager.addTexture(texture, id)
+  logEclipse fmt"Texture '{id}' loaded successfully from {path}"
+  result = texture
+
 proc stop*(game: var Game) =
   game.onStop.fireAll()
+  game.textureManager.clearTextures()
   game.running = false
     
 

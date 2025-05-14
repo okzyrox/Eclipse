@@ -6,7 +6,8 @@
 ## Scene holds a collection of objects and other things that can be rendered
 ##
 
-import gameobject/[base]
+import gameobject/[base, spriteobject]
+import ./[window]
 
 type Scene* = object
   id*: string # stored by id
@@ -16,13 +17,13 @@ type Scene* = object
 proc newScene*(id: string): Scene =
   Scene(id: id, objects: @[])
 
-proc add*(scene: var Scene, entity: GameObjectInstance) =
-  scene.objects.add(entity)
-  entity.enabled = true
+proc add*(scene: var Scene, obj: GameObjectInstance) =
+  scene.objects.add(obj)
+  obj.enabled = true
 
-proc remove*(scene: var Scene, entity: GameObjectInstance) =
-  scene.objects.delete(scene.objects.find(entity))
-  entity.enabled = false
+proc remove*(scene: var Scene, obj: GameObjectInstance) =
+  scene.objects.delete(scene.objects.find(obj))
+  obj.enabled = false
 
 proc update*(scene: var Scene) =
   for i in 0 ..< scene.objects.len:
@@ -30,3 +31,11 @@ proc update*(scene: var Scene) =
     if obj.enabled:
       obj.update()
       scene.objects[i] = obj # replicate 
+
+proc draw*(scene: Scene, ew: EclipseWindow) =
+  for obj in scene.objects:
+    if obj.enabled:
+      if obj of SpriteObjectInstance:
+        draw(ew, SpriteObjectInstance(obj))
+      else:
+        discard
