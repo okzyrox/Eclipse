@@ -21,6 +21,10 @@ type
     ctGameObject,
     ctSpriteObject 
   
+  ComponentTemplateKind* = enum
+    ctkStart
+    ctkUpdate
+
   GenericComponentProc* = proc(obj: var RootRef, cmp: Component)
   
   Component* = object
@@ -70,6 +74,27 @@ proc newComponent*(startCmpProc, updateCmpProc: GenericComponentProc, target: Co
     updateScript: updateCmpProc,
     target: target
   )
+
+template makeComponent*[T](targetType: typedesc[T], name: string, kind: ComponentTemplateKind = ctkUpdate, body: untyped): Component =
+  
+  proc componentProc(objRef: var RootRef, cmp: Component) =
+    var obj {.inject.} = T(objRef)  # auto cast
+    body
+  
+  if kind == ctkStart:
+    Component(
+      enabled: true,
+      startScript: componentProc,
+      updateScript: nil,
+      target: when T is GameObjectInstance: ctGameObject else: ctSpriteObject
+    )
+  else:
+    Component(
+      enabled: true,
+      startScript: nil,
+      updateScript: componentProc,
+      target: when T is GameObjectInstance: ctGameObject else: ctSpriteObject
+    )
 
 proc addComponent*[T: GameObject](obj: var T, cmp: var Component) =
   obj.components.add(cmp)

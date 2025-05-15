@@ -9,11 +9,15 @@ import ../../src/Eclipse
 var game: Game
 
 
-proc runOnce(objRef: var RootRef, cmp: Component) =
-  var obj = GameObjectInstance(objRef)
+
+## via templates
+var runOnceCmp = makeComponent(GameObjectInstance, "runOnce", ctkStart):
   echo "I run once when the game object is created"
+  echo obj
   echo fmt"Object ID: {obj.uid}"
 
+
+## or via proc
 # arrow keys movement
 proc movementScript(objRef: var RootRef, cmp: Component) =
   # cast
@@ -114,7 +118,7 @@ proc main() =
   objBase.addAttribute("color", drawcolor(255, 255, 255, 255))
   objBase.addAttribute("color_state", 0)
   
-  objBase.addComponent(runOnce, nil)
+  objBase.addComponent(runOnceCmp)
   objBase.addComponent(nil, movementScript)
   objBase.addComponent(nil, colorScript)
 
