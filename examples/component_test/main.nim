@@ -9,12 +9,20 @@ import ../../src/Eclipse
 var game: Game
 
 
-proc runOnce(obj: var GameObjectInstance, cmp: Component) =
+
+## via templates
+var runOnceCmp = makeComponent(GameObjectInstance, "runOnce", ctkStart):
   echo "I run once when the game object is created"
+  echo obj
   echo fmt"Object ID: {obj.uid}"
 
+
+## or via proc
 # arrow keys movement
-proc movementScript(obj: var GameObjectInstance, cmp: Component) =
+proc movementScript(objRef: var RootRef, cmp: Component) =
+  # cast
+  var obj = GameObjectInstance(objRef)
+
   if game.keyIsHeld(Key_Up):
     obj.position.y -= 10
 
@@ -29,7 +37,10 @@ proc movementScript(obj: var GameObjectInstance, cmp: Component) =
 
 # scroll through colors in a rainbow
 let cycleSpeed: uint8 = 1
-proc colorScript(obj: var GameObjectInstance, cmp: Component) =
+proc colorScript(objRef: var RootRef, cmp: Component) =
+  # cast
+  var obj = GameObjectInstance(objRef)
+
   randomize()
   let oldColor = obj.getAttributeValue("color", DrawColor)
   var r = oldColor.r
@@ -107,7 +118,7 @@ proc main() =
   objBase.addAttribute("color", drawcolor(255, 255, 255, 255))
   objBase.addAttribute("color_state", 0)
   
-  objBase.addComponent(runOnce, nil)
+  objBase.addComponent(runOnceCmp)
   objBase.addComponent(nil, movementScript)
   objBase.addComponent(nil, colorScript)
 

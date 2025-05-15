@@ -42,6 +42,30 @@ proc newSpriteObject*(name: string): SpriteObject =
     flip: SDL_FLIP_NONE
   )
 
+proc newSpriteComponent*(startCmpProc, updateCmpProc: GenericComponentProc): Component =
+  result = Component(
+    enabled: true,
+    startScript: startCmpProc,
+    updateScript: updateCmpProc,
+    target: ctSpriteObject
+  )
+
+proc addSpriteComponent*(obj: var SpriteObject, cmp: var Component) =
+  # check compatibility
+  if cmp.target != ctSpriteObject and cmp.target != ctGameObject:
+    cmp.target = ctSpriteObject
+  obj.components.add(cmp)
+  cmp.enabled = true
+
+proc addSpriteComponent*(obj: var SpriteObject, startCmpProc, updateCmpProc: GenericComponentProc) =
+  var cmp = Component(
+    enabled: true,
+    startScript: startCmpProc,
+    updateScript: updateCmpProc,
+    target: ctSpriteObject
+  )
+  obj.addSpriteComponent(cmp)
+
 proc createObject*(spriteObj: SpriteObject): SpriteObjectInstance =
   result = SpriteObjectInstance(
     uid: newUID(),
@@ -64,6 +88,22 @@ proc createObject*(spriteObj: SpriteObject): SpriteObjectInstance =
     onUpdate: newEvent(),
     onDraw: newEvent()
   )
+
+  # init components
+  for cmp in result.components:
+    if cmp.enabled and cmp.startScript != nil:
+      # check if compatible with object variant
+      if cmp.target == ctGameObject or cmp.target == ctSpriteObject:
+        var objRef: RootRef = result
+        cmp.startScript(objRef, cmp)
+
+proc update*(sprite: var SpriteObjectInstance) =
+  # update components
+  for cmp in sprite.components:
+    if cmp.enabled and cmp.updateScript != nil:
+      if cmp.target == ctGameObject or cmp.target == ctSpriteObject:
+        var objRef: RootRef = sprite
+        cmp.updateScript(objRef, cmp)
 
 proc setTexture*(sprite: var SpriteObject, texture: EclipseTexture) =
   sprite.texture = texture
