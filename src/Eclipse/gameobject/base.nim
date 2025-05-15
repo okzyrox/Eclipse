@@ -3,7 +3,7 @@
 
 ## GameObject (and components)
 
-import std/[random, options]
+import std/[random, options, typetraits]
 
 import ../[common, attribute, events]
 
@@ -16,11 +16,18 @@ type
     name*: string
     components*: seq[Component]
     attributes*: seq[ObjectAttribute]
-  ComponentProc* = proc(obj: var GameObjectInstance, cmp: Component)
+
+  ComponentTarget* = enum
+    ctGameObject,
+    ctSpriteObject 
+  
+  GenericComponentProc* = proc(obj: var RootRef, cmp: Component)
+  
   Component* = object
     enabled*: bool
-    startScript*: ComponentProc
-    updateScript*: ComponentProc
+    startScript*: GenericComponentProc
+    updateScript*: GenericComponentProc
+    target*: ComponentTarget
   
   GameObjectInstance* = ref object of RootObj
     uid*: string
@@ -48,22 +55,43 @@ proc newUID*(): string =
 proc newObject*(name: string): GameObject =
   result = GameObject(name: name, components: @[])
 
-proc newComponent*(startCmpProc, updateCmpProc: ComponentProc): Component =
+proc newGameObjectComponent*(startCmpProc, updateCmpProc: GenericComponentProc): Component =
   result = Component(
     enabled: true,
     startScript: startCmpProc,
-    updateScript: updateCmpProc
+    updateScript: updateCmpProc,
+    target: ctGameObject
   )
 
-proc addComponent*(obj: var GameObject, cmp: var Component) =
+proc newComponent*(startCmpProc, updateCmpProc: GenericComponentProc, target: ComponentTarget): Component =
+  result = Component(
+    enabled: true,
+    startScript: startCmpProc,
+    updateScript: updateCmpProc,
+    target: target
+  )
+
+proc addComponent*[T: GameObject](obj: var T, cmp: var Component) =
   obj.components.add(cmp)
   cmp.enabled = true
 
-proc addComponent*(obj: var GameObject, startCmpProc, updateCmpProc: ComponentProc) =
+# for backward compatibility
+
+proc addComponent*[T: GameObject](obj: var T, startCmpProc, updateCmpProc: GenericComponentProc) =
   var cmp = Component(
     enabled: true,
     startScript: startCmpProc,
-    updateScript: updateCmpProc
+    updateScript: updateCmpProc,
+    target: ctGameObject
+  )
+  obj.addComponent(cmp)
+
+proc addComponent*(obj: var GameObject, startCmpProc, updateCmpProc: GenericComponentProc) =
+  var cmp = Component(
+    enabled: true,
+    startScript: startCmpProc,
+    updateScript: updateCmpProc,
+    target: ctGameObject
   )
   obj.addComponent(cmp)
 
@@ -91,11 +119,13 @@ proc createObject*(gameObject: GameObject): GameObjectInstance =
   result = createObject(gameObject, none(GameObjectInstance))
   for cmp in gameObject.components:
     if cmp.enabled and cmp.startScript != nil:
-      cmp.startScript(result, cmp)
+      var objRef: RootRef = result
+      cmp.startScript(objRef, cmp)
 
 proc update*(obj: var GameObjectInstance, cmp: Component) = 
   if cmp.enabled and cmp.updateScript != nil:
-    cmp.updateScript(obj, cmp)
+    var objRef: RootRef = obj
+    cmp.updateScript(objRef, cmp)
 
 proc update*(obj: var GameObjectInstance) =
   for cmp in obj.components:

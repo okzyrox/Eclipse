@@ -29,8 +29,12 @@ proc update*(scene: var Scene) =
   for i in 0 ..< scene.objects.len:
     var obj = scene.objects[i]
     if obj.enabled:
-      obj.update()
-      scene.objects[i] = obj # replicate 
+      if obj of SpriteObjectInstance:
+        update(SpriteObjectInstance(obj))
+        scene.objects[i] = obj
+      else:
+        obj.update()
+        scene.objects[i] = obj # replicate 
 
 proc draw*(scene: Scene, ew: EclipseWindow) =
   for obj in scene.objects:

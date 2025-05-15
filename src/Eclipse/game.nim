@@ -276,6 +276,7 @@ proc run*(game: var Game, window: EclipseWindow) =
 
     window.clearScreen()
     window.draw(game)
+    game.currentScene.draw(window)
     game.drawProc(window, game)
     window.presentScreen()
 
