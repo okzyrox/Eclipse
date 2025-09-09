@@ -7,6 +7,8 @@ import sdl2
 
 import ./[common]
 
+import locks
+
 type MouseButton* = enum
   Left,
   Middle,
@@ -44,6 +46,7 @@ type ReturnEvents* = enum
   None
   WindowQuit
   WindowEvent
+  WindowResize
 
 
 proc toKey*(sc: ScanCode): InputKey =
@@ -148,8 +151,10 @@ type InputManager* = object
   mouse_held*: set[MouseButton]
   mouse_just_released*: set[MouseButton]
 
+  lock*: Lock
+
 proc newInputManager*(): InputManager =
-  InputManager(
+  result = InputManager(
     keys_pressed: {},
     keys_held: {},
     keys_just_released: {},
@@ -159,6 +164,8 @@ proc newInputManager*(): InputManager =
     mouse_held: {},
     mouse_just_released: {}
   )
+
+  initLock(result.lock)
 
 proc updateInputs*(inputManager: var InputManager): ReturnEvents =
   inputManager.keys_pressed = {}
@@ -193,6 +200,11 @@ proc updateInputs*(inputManager: var InputManager): ReturnEvents =
       of MouseButtonUp:
         inputManager.mouse_just_released.incl(evt.button.button.toMouseButton())
         inputManager.mouse_held.excl(evt.button.button.toMouseButton())
+
+      # window events
+      of WindowEvent:
+        if evt.window.event == WindowEvent_SizeChanged or evt.window.event == WindowEvent_Exposed:
+          return WindowResize
       
       else:
         discard

@@ -5,7 +5,7 @@
 ##
 ## Game houses all the scenes, and handles the game loop
 
-import std/[strformat]
+import std/[strformat, threadpool, locks]
 
 import sdl2
 import sdl2/[ttf]
@@ -13,7 +13,7 @@ import sdl2/image as sdl2img
 # only using a alias cause `init` and `quit` are common names with other system functions
 # i know nim resolves them regardless, but its more readable like this
 
-import ./[common, window, scene, font, inputs, events, texture]
+import ./[common, window, scene, font, inputs, events, texture, inputs_thread]
 import gameobject/[base]
 
 type 
@@ -41,6 +41,9 @@ type
     targetFPS*: int
     frameCount: int
 
+    inputPollRate*: int
+    resizeRequested*: bool
+
     deltaTime*: float32
     currentFPS*: float
 
@@ -56,9 +59,9 @@ proc newGame*(): Game =
   if ttfInit() != SdlSuccess:
       echo "Failed to initialize SDL2-TTF"
       ttfQuit()
-  if sdl2img.init(IMG_INIT_PNG) == 0:
-    logEclipse "Failed to initialize SDL2_image"
-    sdl2img.quit()
+  # if sdl2img.init(IMG_INIT_PNG) == 0:
+  #   logEclipse "Failed to initialize SDL2_image"
+  #   sdl2img.quit()
   let fpsCap = 60
   result = Game(
       running: true,
@@ -70,7 +73,8 @@ proc newGame*(): Game =
       frameDelay: uint32(1000 div fpsCap),
       currentFPS: 0.0,
       frameCount: 0,
-      fpsUpdateTime: getTicks()
+      fpsUpdateTime: getTicks(),
+      inputPollRate: 60, #/s
   )
   result.onStart.fireAll()
 
@@ -214,6 +218,7 @@ proc loadTexture*(game: var Game, ew: EclipseWindow, path: string, id: string): 
   result = texture
 
 proc stop*(game: var Game) =
+  inputThreadRunning = false
   game.onStop.fireAll()
   game.textureManager.clearTextures()
   game.running = false
@@ -267,18 +272,27 @@ proc run*(game: var Game, window: EclipseWindow) =
   game.onStart.fireAll()
   game.running = true
   game.initProc(window, game)
+  spawn inputThreadProc(addr game, addr game.inputManager, game.inputPollRate)
   while game.running:
     game.beginFrame()
-    
-    game.updateInputs()
+    game.inputManager.lock.acquire()
     game.update()
     game.updateProc(window, game)
+    game.inputManager.lock.release()
 
     window.clearScreen()
     window.draw(game)
     game.currentScene.draw(window)
     game.drawProc(window, game)
     window.presentScreen()
+
+    if game.resizeRequested:
+      window.clearScreen()
+      window.draw(game)
+      game.currentScene.draw(window)
+      game.drawProc(window, game)
+      window.presentScreen()
+      game.resizeRequested = false
 
     game.endFrame()
   game.stop()

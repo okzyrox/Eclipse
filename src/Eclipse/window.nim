@@ -16,6 +16,7 @@ type
     height*: int
     title*: string
     fullscreen*: bool
+    titlebar*: bool = true
     flags*: seq[RendererFlags]
 
     window*: Option[WindowPtr] = none(WindowPtr)
@@ -49,6 +50,11 @@ proc newWindowPtr(ew: EclipseWindow): WindowPtr =
     ew.height.cint,
     SDL_WINDOW_SHOWN or SDL_WINDOW_RESIZABLE
   )
+  if ew.fullscreen:
+    discard result.setFullscreen(SDL_WINDOW_FULLSCREEN)
+
+  if ew.titlebar == false and ew.fullscreen == false:
+    result.setBordered(sdl2.False32)
 
 template makeFlags*(flags: seq[RendererFlags]): cint =
   block:
@@ -57,12 +63,13 @@ template makeFlags*(flags: seq[RendererFlags]): cint =
       result = result or flag.cint
     result
 
-proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool, flags: seq[RendererFlags]): EclipseWindow =
+proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool, titlebar: bool, flags: seq[RendererFlags]): EclipseWindow =
   var ew = EclipseWindow(
     width: width,
     height: height,
     title: title,
     fullscreen: fullscreen,
+    titlebar: titlebar,
     flags: flags
   )
 
@@ -81,8 +88,8 @@ proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool, flag
 
   result = ew
 
-proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool = false): EclipseWindow =
-  result = newEclipseWindow(title, width, height, fullscreen, @[HardwareRendering, VsyncEnabled])
+proc newEclipseWindow*(title: string, width, height: int, fullscreen: bool = false, titlebar: bool = true): EclipseWindow =
+  result = newEclipseWindow(title, width, height, fullscreen, titlebar, @[HardwareRendering, VsyncEnabled])
 
 proc clearScreen*(ew: EclipseWindow): void =
   if ew.renderer.isNone:
